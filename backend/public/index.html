@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QA Platform - New Issue</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin: 10px 0; }
+        label { display: block; margin-bottom: 5px; }
+        input, select, textarea { width: 300px; padding: 8px; }
+        button { padding: 10px 20px; margin: 10px 5px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <h1>QA Collaboration Platform</h1>
+    
+    <button id="newIssueBtn">New Issue</button>
+    
+    <div id="issueForm" class="hidden">
+        <h2>Create New Issue</h2>
+        <form id="ticketForm">
+            <div class="form-group">
+                <label>Title:</label>
+                <input type="text" id="title" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Description:</label>
+                <textarea id="description" rows="4" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Status:</label>
+                <select id="status"></select>
+            </div>
+            
+            <div class="form-group">
+                <label>Priority:</label>
+                <select id="priority"></select>
+            </div>
+            
+            <div class="form-group">
+                <label>Severity:</label>
+                <select id="severity"></select>
+            </div>
+            
+            <div class="form-group">
+                <label>Assigned User:</label>
+                <select id="assigned_user_id"></select>
+            </div>
+            
+            <div class="form-group">
+                <label>Test Case:</label>
+                <select id="test_case_id">
+                    <option value="">None</option>
+                </select>
+            </div>
+            
+            <button type="submit">Create Issue</button>
+            <button type="button" id="cancelBtn">Cancel</button>
+        </form>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api/v1';
+        
+        document.getElementById('newIssueBtn').onclick = async () => {
+            const response = await fetch(`${API_BASE}/tickets/form_data`);
+            const data = await response.json();
+            
+            populateSelect('status', data.statuses);
+            populateSelect('priority', data.priorities);
+            populateSelect('severity', data.severities);
+            populateUsers(data.users);
+            populateTestCases(data.test_cases);
+            
+            document.getElementById('issueForm').classList.remove('hidden');
+        };
+        
+        document.getElementById('cancelBtn').onclick = () => {
+            document.getElementById('issueForm').classList.add('hidden');
+            document.getElementById('ticketForm').reset();
+        };
+        
+        document.getElementById('ticketForm').onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                ticket: {
+                    title: document.getElementById('title').value,
+                    description: document.getElementById('description').value,
+                    status: document.getElementById('status').value,
+                    priority: document.getElementById('priority').value,
+                    severity: document.getElementById('severity').value,
+                    assigned_user_id: document.getElementById('assigned_user_id').value || null,
+                    test_case_id: document.getElementById('test_case_id').value || null
+                }
+            };
+            
+            const response = await fetch(`${API_BASE}/tickets`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+            
+            if (response.ok) {
+                alert('Issue created successfully!');
+                document.getElementById('issueForm').classList.add('hidden');
+                document.getElementById('ticketForm').reset();
+            } else {
+                alert('Error creating issue');
+            }
+        };
+        
+        function populateSelect(id, options) {
+            const select = document.getElementById(id);
+            select.innerHTML = '';
+            options.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option;
+                opt.textContent = option.replace('_', ' ').toUpperCase();
+                select.appendChild(opt);
+            });
+        }
+        
+        function populateUsers(users) {
+            const select = document.getElementById('assigned_user_id');
+            select.innerHTML = '<option value="">Unassigned</option>';
+            users.forEach(user => {
+                const opt = document.createElement('option');
+                opt.value = user.id;
+                opt.textContent = `${user.first_name} ${user.last_name}`;
+                select.appendChild(opt);
+            });
+        }
+        
+        function populateTestCases(testCases) {
+            const select = document.getElementById('test_case_id');
+            testCases.forEach(tc => {
+                const opt = document.createElement('option');
+                opt.value = tc.id;
+                opt.textContent = tc.title;
+                select.appendChild(opt);
+            });
+        }
+    </script>
+</body>
+</html>

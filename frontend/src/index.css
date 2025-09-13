@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideDown {
+    animation: slideDown 0.2s ease-out;
+}
+
+
+/* Fix for dropdown modals appearing behind other elements */
+[data-radix-popper-content-wrapper] {
+    z-index: 9999 !important;
+}
+
+.radix-select-content {
+    z-index: 9999 !important;
+}
+
+/* Ensure Select components appear above dialogs */
+[data-radix-select-content] {
+    z-index: 9999 !important;
+}

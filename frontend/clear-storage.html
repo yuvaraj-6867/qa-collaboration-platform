@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear LocalStorage</title>
+</head>
+<body>
+    <h1>Clear LocalStorage for Port 3000</h1>
+    <button onclick="clearStorage()">Clear All Data</button>
+    <div id="result"></div>
+    
+    <script>
+        function clearStorage() {
+            localStorage.clear();
+            document.getElementById('result').innerHTML = '<p style="color: green;">All localStorage data cleared!</p>';
+            setTimeout(() => {
+                window.location.href = 'http://localhost:3000';
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+Rails.application.routes.draw do
+  get '/favicon.ico', to: proc { [204, {}, []] }
+  
+  root 'home#index'
+  namespace :api do
+    namespace :v1 do
+      resources :test_cases do
+        member do
+          post :clone
+          get :history
+          patch :update_status
+        end
+        collection do
+          post :bulk_import
+          get :export
+        end
+        resources :test_runs, only: [:index, :create]
+        resources :comments, only: [:index, :create, :update, :destroy]
+      end
+      
+      resources :tickets do
+        collection do
+          get :form_data
+        end
+        resources :comments, only: [:index, :create, :update, :destroy]
+      end
+      
+      resources :test_runs, only: [:index, :show, :update]
+      resources :folders, only: [:index, :show, :create, :update, :destroy]
+      resources :users, only: [:index, :show, :create, :update] do
+        collection do
+          get :current
+        end
+      end
+      resources :projects
+      
+      resources :automation_scripts do
+        member do
+          post :execute
+        end
+      end
+      
+      resources :documents do
+        member do
+          get :download
+        end
+      end
+      
+      resources :labels
+      
+      resources :notifications, only: [:index] do
+        member do
+          patch :read
+        end
+      end
+      
+      # Settings
+      get 'settings', to: 'settings#show'
+      patch 'settings', to: 'settings#update'
+      
+      # Dashboard and analytics
+      get 'dashboard/metrics', to: 'dashboard#metrics'
+      get 'dashboard/recent_activity', to: 'dashboard#recent_activity'
+      get 'dashboard/trends', to: 'dashboard#trends'
+      
+      # Admin
+      post 'admin/reset_database', to: 'admin#reset_database'
+      
+      # Authentication
+      post 'auth/login', to: 'authentication#login'
+      post 'auth/register', to: 'authentication#register'
+      delete 'auth/logout', to: 'authentication#logout'
+      patch 'auth/change_password', to: 'authentication#change_password'
+      get 'auth/dev_token', to: 'authentication#dev_token' if Rails.env.development?
+    end
+  end
+
+  # Simple routes for testing
+  get '/testcases', to: redirect('/api/v1/test_cases')
+  get '/login', to: redirect('/api/v1/auth/login')
+
+  # Health check
+  get "up" => "rails/health#show", as: :rails_health_check
+end

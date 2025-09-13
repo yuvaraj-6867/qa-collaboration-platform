@@ -1,0 +1,19 @@
+/* Ensure dark mode applies to body and html */
+html.dark {
+  background-color: #111827;
+  color: #f9fafb;
+}
+
+body {
+  background-color: inherit;
+  color: inherit;
+}
+
+/* Dark mode for all pages */
+.dark {
+  color-scheme: dark;
+}
+
+.dark * {
+  border-color: #374151;
+}

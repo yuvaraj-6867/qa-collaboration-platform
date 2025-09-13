@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QA Platform - Extended Issue Creation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .form-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .form-section h3 { margin-top: 0; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 5px; }
+        .form-row { display: flex; gap: 20px; margin: 10px 0; }
+        .form-group { flex: 1; margin: 10px 0; }
+        .form-group.full-width { flex: 100%; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        textarea { resize: vertical; }
+        button { padding: 12px 24px; margin: 10px 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .hidden { display: none; }
+        .required { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QA Collaboration Platform</h1>
+        
+        <button id="newIssueBtn" class="btn-primary">New Issue</button>
+        
+        <div id="issueForm" class="hidden">
+            <h2>Create New Issue</h2>
+            <form id="ticketForm">
+                <!-- General Information -->
+                <div class="form-section">
+                    <h3>General Information</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Issue ID:</label>
+                            <input type="text" value="Auto-generated" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Reporter:</label>
+                            <input type="text" id="reporter" value="Current User" required>
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Title <span class="required">*</span>:</label>
+                        <input type="text" id="title" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Description <span class="required">*</span>:</label>
+                        <textarea id="description" rows="4" required placeholder="Rich text with formatting, images, video, code snippets"></textarea>
+                    </div>
+                </div>
+
+                <!-- Classification Fields -->
+                <div class="form-section">
+                    <h3>Classification</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Issue Type:</label>
+                            <select id="issue_type">
+                                <option value="bug">Bug</option>
+                                <option value="task">Task</option>
+                                <option value="feature_request">Feature Request</option>
+                                <option value="improvement">Improvement</option>
+                                <option value="test_failure">Test Failure</option>
+                                <option value="documentation">Documentation</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Priority:</label>
+                            <select id="priority">
+                                <option value="p0">P0 - Critical</option>
+                                <option value="p1">P1 - High</option>
+                                <option value="p2">P2 - Medium</option>
+                                <option value="p3">P3 - Low</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Severity:</label>
+                            <select id="severity">
+                                <option value="blocker">Blocker</option>
+                                <option value="critical">Critical</option>
+                                <option value="major">Major</option>
+                                <option value="minor">Minor</option>
+                                <option value="trivial">Trivial</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Status:</label>
+                            <select id="status">
+                                <option value="open">Open</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="in_review">In Review</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="closed">Closed</option>
+                                <option value="reopened">Reopened</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Resolution:</label>
+                            <select id="resolution">
+                                <option value="">None</option>
+                                <option value="fixed">Fixed</option>
+                                <option value="wont_fix">Won't Fix</option>
+                                <option value="duplicate">Duplicate</option>
+                                <option value="cannot_reproduce">Cannot Reproduce</option>
+                                <option value="deferred">Deferred</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assignment & Workflow -->
+                <div class="form-section">
+                    <h3>Assignment & Workflow</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Assignee:</label>
+                            <input type="text" id="assignee" placeholder="Single user responsible">
+                        </div>
+                        <div class="form-group">
+                            <label>Reviewer/Approver:</label>
+                            <input type="text" id="reviewer" placeholder="QA lead or manager">
+                        </div>
+                        <div class="form-group">
+                            <label>Team Assignment:</label>
+                            <select id="team">
+                                <option value="qa">QA</option>
+                                <option value="dev">Dev</option>
+                                <option value="ops">Ops</option>
+                                <option value="compliance">Compliance</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Milestone/Sprint:</label>
+                            <input type="text" id="milestone" placeholder="Project roadmap link">
+                        </div>
+                        <div class="form-group">
+                            <label>Due Date:</label>
+                            <input type="date" id="due_date">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Test & Development Links -->
+                <div class="form-section">
+                    <h3>Test & Development Links</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Linked Test Cases:</label>
+                            <input type="text" id="test_cases" placeholder="Manual test IDs">
+                        </div>
+                        <div class="form-group">
+                            <label>Automation Runs:</label>
+                            <input type="text" id="automation_runs" placeholder="Failed CI/CD executions">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Requirement Reference:</label>
+                            <input type="text" id="requirement_ref" placeholder="User story traceability">
+                        </div>
+                        <div class="form-group">
+                            <label>Git Reference:</label>
+                            <input type="text" id="git_ref" placeholder="Commit/Branch/PR link">
+                        </div>
+                        <div class="form-group">
+                            <label>Environment:</label>
+                            <select id="environment">
+                                <option value="staging">Staging</option>
+                                <option value="production">Production</option>
+                                <option value="uat">UAT</option>
+                                <option value="local">Local</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bug-Specific Fields -->
+                <div class="form-section">
+                    <h3>Bug-Specific Fields</h3>
+                    <div class="form-group full-width">
+                        <label>Steps to Reproduce:</label>
+                        <textarea id="steps_to_reproduce" rows="3" placeholder="1. Step one&#10;2. Step two&#10;3. Step three"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Expected Result:</label>
+                            <textarea id="expected_result" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Actual Result:</label>
+                            <textarea id="actual_result" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Workaround Available:</label>
+                            <select id="workaround">
+                                <option value="no">No</option>
+                                <option value="yes">Yes</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Regression Flag:</label>
+                            <select id="regression">
+                                <option value="no">No</option>
+                                <option value="yes">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Detected In Version:</label>
+                            <input type="text" id="detected_version" placeholder="Release/build number">
+                        </div>
+                        <div class="form-group">
+                            <label>Fixed In Version:</label>
+                            <input type="text" id="fixed_version" placeholder="Resolution tracking">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attachments & Evidence -->
+                <div class="form-section">
+                    <h3>Attachments & Evidence</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Screenshots/Videos:</label>
+                            <input type="file" id="attachments" multiple accept="image/*,video/*">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>System Logs:</label>
+                        <textarea id="system_logs" rows="3" placeholder="Console output, error logs"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Configuration Info:</label>
+                        <textarea id="config_info" rows="2" placeholder="Browser, OS, device, API version"></textarea>
+                    </div>
+                </div>
+
+                <!-- Collaboration & Tracking -->
+                <div class="form-section">
+                    <h3>Collaboration & Tracking</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Labels/Tags:</label>
+                            <input type="text" id="labels" placeholder="Comma-separated keywords">
+                        </div>
+                        <div class="form-group">
+                            <label>Watchers:</label>
+                            <input type="text" id="watchers" placeholder="Users to notify">
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Initial Comments:</label>
+                        <textarea id="comments" rows="3" placeholder="Additional notes, @mentions"></textarea>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button type="submit" class="btn-primary">Create Issue</button>
+                    <button type="button" id="cancelBtn" class="btn-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('newIssueBtn').onclick = () => {
+            document.getElementById('issueForm').classList.remove('hidden');
+        };
+        
+        document.getElementById('cancelBtn').onclick = () => {
+            document.getElementById('issueForm').classList.add('hidden');
+            document.getElementById('ticketForm').reset();
+        };
+        
+        document.getElementById('ticketForm').onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                ticket: {
+                    title: document.getElementById('title').value,
+                    description: document.getElementById('description').value,
+                    status: document.getElementById('status').value,
+                    priority: document.getElementById('priority').value,
+                    severity: document.getElementById('severity').value
+                }
+            };
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/v1/tickets', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.ok) {
+                    alert('Issue created successfully!');
+                    document.getElementById('issueForm').classList.add('hidden');
+                    document.getElementById('ticketForm').reset();
+                } else {
+                    alert('Error creating issue');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        };
+    </script>
+</body>
+</html>
