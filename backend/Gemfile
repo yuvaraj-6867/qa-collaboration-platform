@@ -3,47 +3,10 @@ source "https://rubygems.org"
 ruby "3.2.2"
 
 gem "rails", "~> 7.1.0"
-gem "sqlite3", "~> 1.4", group: [:development, :test]
 gem "pg", "~> 1.1", group: :production
 gem "puma", ">= 5.0"
 gem "bootsnap", require: false
-gem "kamal", require: false
-gem "thruster", require: false
-gem "image_processing", "~> 1.2"
-gem "solid_cache"
-gem "solid_queue"
-gem "solid_cable"
-
-# API specific gems
 gem "rack-cors"
 gem "jbuilder"
 gem "jwt"
 gem "bcrypt"
-gem "useragent"
-
-# Background jobs
-gem "sidekiq"
-gem "redis"
-
-# File uploads
-gem "aws-sdk-s3"
-
-# Pagination
-gem "kaminari"
-
-# Search
-gem "pg_search"
-
-group :development, :test do
-  gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
-  gem "brakeman", require: false
-  gem "rubocop-rails-omakase", require: false
-  gem "rspec-rails"
-  gem "factory_bot_rails"
-  gem "dotenv-rails"
-end
-
-group :development do
-  gem "annotate"
-  gem "letter_opener"
-end
