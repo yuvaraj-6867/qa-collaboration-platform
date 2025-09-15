@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["nodejs", "ruby_3_2", "postgresql"]
+nixPkgs = ["nodejs", "ruby_3_2", "postgresql", "gcc", "gnumake", "pkg-config"]
 
 [phases.install]
 cmds = ["cd backend && bundle install"]
