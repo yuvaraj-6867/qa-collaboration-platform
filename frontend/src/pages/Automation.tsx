@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
@@ -11,7 +11,11 @@ import { Search, Plus, Play, FileText, Calendar } from 'lucide-react';
 import { usersApi } from '@/lib/api';
 
 
-const Automation = () => {
+interface AutomationProps {
+  addNotification?: (message: string) => void;
+}
+
+const Automation: React.FC<AutomationProps> = ({ addNotification }) => {
   const [scripts, setScripts] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [testCases, setTestCases] = useState<any[]>([]);
@@ -77,17 +81,21 @@ const Automation = () => {
     if (savedScripts) {
       setScripts(JSON.parse(savedScripts));
     }
-    fetchUsers();
-    fetchTestCases();
     generateScriptId();
   }, []);
+
+  useEffect(() => {
+    if (isCreateDialogOpen) {
+      fetchUsers();
+      fetchTestCases();
+    }
+  }, [isCreateDialogOpen]);
 
   const fetchUsers = async () => {
     try {
       const response = await usersApi.getAll();
       setUsers(response.data);
     } catch (error) {
-      console.error('Failed to fetch users:', error);
       setUsers([]);
     }
   };
@@ -150,6 +158,14 @@ const Automation = () => {
 
     // Reset form
     setIsCreateDialogOpen(false);
+    addNotification?.(`🤖 Automation script "${newScript.scriptName}" created successfully!`);
+    addNotification?.(`🔧 Framework: ${newScript.framework} (${newScript.language})`);
+    if (selectedTestCases.length > 0) {
+      addNotification?.(`🔗 Linked to ${selectedTestCases.length} test case(s)`);
+    }
+    if (selectedBrowsers.length > 0) {
+      addNotification?.(`🌐 Configured for: ${selectedBrowsers.join(', ')}`);
+    }
     setSelectedTags([]);
     setSelectedTestCases([]);
     setSelectedBrowsers([]);
@@ -212,6 +228,9 @@ const Automation = () => {
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create New Automation Script</DialogTitle>
+              <DialogDescription className="text-gray-600">
+                Create a comprehensive automation script with execution details and test case linkage.
+              </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-6">

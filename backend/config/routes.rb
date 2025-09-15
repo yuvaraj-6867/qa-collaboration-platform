@@ -1,5 +1,9 @@
 Rails.application.routes.draw do
   get '/favicon.ico', to: proc { [204, {}, []] }
+  match '/firebase*', to: proc { [204, {}, []] }, via: :all
+  
+  # WebSocket cable
+  mount ActionCable.server => '/cable'
   
   root 'home#index'
   namespace :api do
@@ -16,6 +20,7 @@ Rails.application.routes.draw do
         end
         resources :test_runs, only: [:index, :create]
         resources :comments, only: [:index, :create, :update, :destroy]
+        resources :test_case_attachments, only: [:index, :create, :destroy]
       end
       
       resources :tickets do
@@ -32,6 +37,7 @@ Rails.application.routes.draw do
           get :current
         end
       end
+      resources :user_invitations, only: [:create]
       resources :projects
       
       resources :automation_scripts do
@@ -49,6 +55,9 @@ Rails.application.routes.draw do
       resources :labels
       
       resources :notifications, only: [:index] do
+        collection do
+          get :count
+        end
         member do
           patch :read
         end
@@ -72,6 +81,15 @@ Rails.application.routes.draw do
       delete 'auth/logout', to: 'authentication#logout'
       patch 'auth/change_password', to: 'authentication#change_password'
       get 'auth/dev_token', to: 'authentication#dev_token' if Rails.env.development?
+      
+      # Auth debugging (development only)
+      if Rails.env.development?
+        get 'auth/debug/status', to: 'auth_debug#status'
+        get 'auth/debug/test_token', to: 'auth_debug#test_token'
+      end
+      
+      # Invitations
+      post 'invitations/send', to: 'invitations#send_invitation'
     end
   end
 

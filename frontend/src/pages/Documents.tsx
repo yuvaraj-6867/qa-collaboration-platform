@@ -123,7 +123,7 @@ const Documents = () => {
         expected_results: getCellValue(row, headers, ['expected', 'expected result', 'expected_result', 'result']) || '',
         priority: parsePriority(getCellValue(row, headers, ['priority', 'pri'])) || 2,
         status: getCellValue(row, headers, ['status', 'state']) || 'Draft',
-        folder: newDocument.folder
+        folder: 'Test Cases'
       };
 
       testCases.push(testCase);
@@ -159,7 +159,17 @@ const Documents = () => {
     // Continue with document upload
     handleUploadDocument();
     setShowTestCasePreview(false);
-    alert(`Successfully imported ${processedTestCases.length} test cases!`);
+    
+    // Add notification
+    if ((window as any).addNotification) {
+      (window as any).addNotification(
+        'Test Cases Imported', 
+        `Successfully imported ${processedTestCases.length} test cases to the "Test Cases" folder. You can view them in the Test Cases page.`, 
+        'success'
+      );
+    } else {
+      alert(`Successfully imported ${processedTestCases.length} test cases! Check the Test Cases page under "Test Cases" folder.`);
+    }
   };
 
   const handleUploadDocument = () => {

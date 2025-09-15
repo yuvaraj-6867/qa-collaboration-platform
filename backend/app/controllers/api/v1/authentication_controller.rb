@@ -24,7 +24,11 @@ class Api::V1::AuthenticationController < ApplicationController
   end
 
   def register
-    if params[:password] != params[:confirm_password]
+    # Handle nested authentication parameters
+    auth_params = params[:authentication] || params
+    
+    # Check if confirm_password is provided and matches
+    if auth_params[:confirm_password].present? && auth_params[:password] != auth_params[:confirm_password]
       return render json: { error: 'Password and confirmation do not match' }, status: :unprocessable_entity
     end
     
@@ -87,6 +91,8 @@ class Api::V1::AuthenticationController < ApplicationController
   end
 
   def user_params
-    params.permit(:email, :password, :first_name, :last_name, :role, :phone, :location)
+    # Handle both flat and nested parameter structures
+    auth_params = params[:authentication] || params
+    auth_params.permit(:email, :password, :first_name, :last_name, :role, :phone, :location)
   end
 end

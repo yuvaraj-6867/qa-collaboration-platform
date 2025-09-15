@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { authApi } from '@/lib/api';
-
+import { useGlobalSnackbar } from '@/components/SnackbarProvider';
+import { getErrorMessage } from '@/utils/errorHandler';
 
 interface User {
   id: number;
@@ -26,16 +27,15 @@ const Login = ({ onLogin }: LoginProps) => {
   const [phone, setPhone] = useState('');
   const [location, setLocation] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [currentView, setCurrentView] = useState<'welcome' | 'signin' | 'signup'>('welcome');
+  const { showError, showSuccess } = useGlobalSnackbar();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
 
     try {
       const response = await authApi.login(email, password);
@@ -43,19 +43,24 @@ const Login = ({ onLogin }: LoginProps) => {
 
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      onLogin(data.token, data.user);
+      showSuccess('Login successful! Welcome back.');
+      setTimeout(() => onLogin(data.token, data.user), 1000);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Login failed');
+      showError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
   };
 
-
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+
+    if (password !== confirmPassword) {
+      showError('Password and confirmation do not match');
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await authApi.register({
@@ -63,28 +68,28 @@ const Login = ({ onLogin }: LoginProps) => {
         last_name: lastName,
         email,
         password,
+        confirm_password: confirmPassword,
         phone,
         location
       });
       const data = response.data;
 
       if (data.redirect_to_signin) {
+        showSuccess('Registration successful! Please sign in.');
         setCurrentView('signin');
-        setError('');
       } else {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        onLogin(data.token, data.user);
+        showSuccess('Account created successfully! Welcome to QA Platform.');
+        setTimeout(() => onLogin(data.token, data.user), 1000);
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Registration failed');
+      showError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
   };
 
-
-  // Welcome Screen
   if (currentView === 'welcome') {
     return (
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800">
@@ -101,19 +106,13 @@ const Login = ({ onLogin }: LoginProps) => {
 
           <div className="flex bg-white/20 rounded-full p-2 max-w-sm mx-auto backdrop-blur-lg">
             <button
-              onClick={() => {
-                setCurrentView('signin');
-                setError('');
-              }}
+              onClick={() => setCurrentView('signin')}
               className="flex-1 py-3 px-6 rounded-full text-white font-medium transition-all hover:bg-white/20"
             >
               Sign in
             </button>
             <button
-              onClick={() => {
-                setCurrentView('signup');
-                setError('');
-              }}
+              onClick={() => setCurrentView('signup')}
               className="flex-1 py-3 px-6 rounded-full text-purple-600 bg-white font-medium transition-all hover:bg-gray-100"
             >
               Sign up
@@ -124,7 +123,6 @@ const Login = ({ onLogin }: LoginProps) => {
     );
   }
 
-  // Sign In Screen
   if (currentView === 'signin') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800">
@@ -132,10 +130,7 @@ const Login = ({ onLogin }: LoginProps) => {
           <div className="bg-white rounded-2xl shadow-2xl p-8">
             <div className="flex items-center mb-6">
               <button
-                onClick={() => {
-                  setCurrentView('welcome');
-                  setError('');
-                }}
+                onClick={() => setCurrentView('welcome')}
                 className="flex items-center text-purple-600 hover:text-purple-800"
               >
                 <ArrowLeft className="h-5 w-5 mr-2" />
@@ -183,15 +178,9 @@ const Login = ({ onLogin }: LoginProps) => {
                 </a>
               </div>
 
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
-                  {error}
-                </div>
-              )}
-
               <Button
                 type="submit"
-                className="w-full bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-3 rounded-lg transition-colors"
+                className="w-full btn-primary"
                 disabled={loading}
               >
                 {loading ? 'Signing in...' : 'Sign in'}
@@ -201,10 +190,7 @@ const Login = ({ onLogin }: LoginProps) => {
             <div className="mt-6 text-center">
               <span className="text-sm text-gray-600">Don't have an account? </span>
               <button
-                onClick={() => {
-                  setCurrentView('signup');
-                  setError('');
-                }}
+                onClick={() => setCurrentView('signup')}
                 className="text-sm text-purple-600 hover:text-purple-800 font-medium"
               >
                 Sign up
@@ -216,17 +202,13 @@ const Login = ({ onLogin }: LoginProps) => {
     );
   }
 
-  // Sign Up Screen
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <div className="flex items-center mb-6">
             <button
-              onClick={() => {
-                setCurrentView('welcome');
-                setError('');
-              }}
+              onClick={() => setCurrentView('welcome')}
               className="flex items-center text-purple-600 hover:text-purple-800"
             >
               <ArrowLeft className="h-5 w-5 mr-2" />
@@ -342,15 +324,9 @@ const Login = ({ onLogin }: LoginProps) => {
               </span>
             </div>
 
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
-                {error}
-              </div>
-            )}
-
             <Button
               type="submit"
-              className="w-full bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-3 rounded-lg transition-colors mt-6"
+              className="w-full btn-primary mt-6"
               disabled={loading || !agreeToTerms}
             >
               {loading ? 'Signing up...' : 'SIGN UP'}
@@ -360,10 +336,7 @@ const Login = ({ onLogin }: LoginProps) => {
           <div className="mt-6 text-center">
             <span className="text-sm text-gray-600">Already have an account? </span>
             <button
-              onClick={() => {
-                setCurrentView('signin');
-                setError('');
-              }}
+              onClick={() => setCurrentView('signin')}
               className="text-sm text-blue-600 hover:text-blue-800 font-medium"
             >
               Sign in

@@ -1,4 +1,6 @@
 class Api::V1::TestCasesController < ApplicationController
+  skip_before_action :authenticate_request
+  skip_before_action :check_authorization
   before_action :set_test_case, only: [:show, :update, :destroy]
 
   def index
@@ -79,8 +81,19 @@ class Api::V1::TestCasesController < ApplicationController
       folder_id: test_case.folder_id,
       project_id: test_case.project_id,
       project_name: test_case.project&.name,
+      attachments: test_case.test_case_attachments.map { |att| attachment_json(att) },
       created_at: test_case.created_at,
       updated_at: test_case.updated_at
+    }
+  end
+
+  def attachment_json(attachment)
+    {
+      id: attachment.id,
+      filename: attachment.filename,
+      content_type: attachment.content_type,
+      attachment_type: attachment.attachment_type,
+      file_url: attachment.file_url
     }
   end
 

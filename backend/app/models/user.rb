@@ -11,6 +11,7 @@ class User < ApplicationRecord
   has_many :created_tickets, class_name: 'Ticket', foreign_key: 'created_by_id'
   has_many :assigned_tickets, class_name: 'Ticket', foreign_key: 'assigned_user_id'
   has_many :test_runs
+  has_many :notifications, dependent: :destroy
   has_one :user_setting, dependent: :destroy
 
   scope :active, -> { where(status: 'active') }

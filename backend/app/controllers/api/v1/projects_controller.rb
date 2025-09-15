@@ -3,19 +3,33 @@ class Api::V1::ProjectsController < ApplicationController
   skip_before_action :check_authorization
 
   def index
-    render json: []
+    projects = Project.all
+    render json: projects
   end
 
   def show
-    render json: {}
+    project = Project.find(params[:id])
+    render json: project
   end
 
   def create
-    render json: { error: 'Projects not implemented' }, status: :not_implemented
+    project = Project.new(project_params)
+    
+    if project.save
+      render json: project, status: :created
+    else
+      render json: { errors: project.errors }, status: :unprocessable_entity
+    end
   end
 
   def update
-    render json: { error: 'Projects not implemented' }, status: :not_implemented
+    project = Project.find(params[:id])
+    
+    if project.update(project_params)
+      render json: project
+    else
+      render json: { errors: project.errors }, status: :unprocessable_entity
+    end
   end
 
   def destroy

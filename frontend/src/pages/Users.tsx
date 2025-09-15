@@ -3,7 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Phone, Calendar, MapPin, Clock } from 'lucide-react';
+import { Search, Plus, Phone, Calendar, MapPin, Clock, Mail } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usersApi } from '@/lib/api';
 
 interface User {
@@ -20,12 +23,54 @@ interface User {
   created_at: string;
 }
 
-const Users = () => {
+interface UsersProps {
+  addNotification?: (message: string) => void;
+}
+
+const Users: React.FC<UsersProps> = ({ addNotification }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+  const [inviteData, setInviteData] = useState({
+    email: '',
+    firstName: '',
+    lastName: '',
+    role: 'qa_engineer'
+  });
 
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+
+  const handleInviteUser = async () => {
+    if (!inviteData.email || !inviteData.firstName || !inviteData.lastName) {
+      addNotification?.('❌ Please fill in all required fields');
+      return;
+    }
+
+    try {
+      const response = await fetch('./api/v1/user_invitations', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: inviteData.email,
+          role: inviteData.role
+        })
+      });
+
+      if (response.ok) {
+        addNotification?.(`📧 Invitation sent to ${inviteData.email}`);
+        setInviteData({ email: '', firstName: '', lastName: '', role: 'qa_engineer' });
+        setIsInviteDialogOpen(false);
+      } else {
+        addNotification?.(`❌ Failed to send invitation`);
+      }
+    } catch (error) {
+      addNotification?.('❌ Network error: Failed to send invitation email');
+    }
+  };
 
   useEffect(() => {
     fetchUsers();
@@ -45,7 +90,7 @@ const Users = () => {
       }));
       setUsers(updatedUsers);
     } catch (error) {
-      console.error('Failed to fetch users:', error);
+      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -98,10 +143,77 @@ const Users = () => {
     <div className="p-6 space-y-6 bg-white dark:bg-gray-900 min-h-screen">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">👥 Team Management</h1>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-          <Plus className="h-4 w-4 mr-2" />
-          Invite User
-        </Button>
+        <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Plus className="h-4 w-4 mr-2" />
+              Invite User
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Mail className="h-5 w-5" />
+                Invite New User
+              </DialogTitle>
+              <DialogDescription className="text-gray-600">
+                Send an email invitation to add a new team member to the platform.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Email Address *</Label>
+                <Input
+                  type="email"
+                  value={inviteData.email}
+                  onChange={(e) => setInviteData({ ...inviteData, email: e.target.value })}
+                  placeholder="user@company.com"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>First Name *</Label>
+                  <Input
+                    value={inviteData.firstName}
+                    onChange={(e) => setInviteData({ ...inviteData, firstName: e.target.value })}
+                    placeholder="John"
+                  />
+                </div>
+                <div>
+                  <Label>Last Name *</Label>
+                  <Input
+                    value={inviteData.lastName}
+                    onChange={(e) => setInviteData({ ...inviteData, lastName: e.target.value })}
+                    placeholder="Doe"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label>Role</Label>
+                <Select value={inviteData.role} onValueChange={(value) => setInviteData({ ...inviteData, role: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="qa_engineer">QA Engineer</SelectItem>
+                    <SelectItem value="qa_manager">QA Manager</SelectItem>
+                    <SelectItem value="developer">Developer</SelectItem>
+                    <SelectItem value="compliance_officer">Compliance Officer</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button variant="outline" onClick={() => setIsInviteDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleInviteUser} className="bg-blue-600 hover:bg-blue-700">
+                  <Mail className="h-4 w-4 mr-2" />
+                  Send Invitation
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="relative flex-1 max-w-sm">

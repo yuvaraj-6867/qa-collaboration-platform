@@ -10,6 +10,7 @@ class TestCase < ApplicationRecord
   has_many :test_runs, dependent: :destroy
   has_many :comments, as: :commentable, dependent: :destroy
   has_many :automation_scripts, dependent: :destroy
+  has_many :test_case_attachments, dependent: :destroy
 
   scope :active, -> { where.not(status: 'archived') }
   scope :by_priority, -> { order(:priority) }

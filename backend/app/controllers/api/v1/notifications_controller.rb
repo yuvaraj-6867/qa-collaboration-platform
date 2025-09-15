@@ -1,37 +1,17 @@
 class Api::V1::NotificationsController < ApplicationController
   def index
-    notifications = [
-      {
-        id: 1,
-        title: "Test Case Updated",
-        message: "Test case TC-001 has been updated by QA Manager",
-        type: "info",
-        read: false,
-        created_at: 1.hour.ago
-      },
-      {
-        id: 2,
-        title: "Automation Script Completed",
-        message: "Login automation script executed successfully",
-        type: "success",
-        read: false,
-        created_at: 2.hours.ago
-      },
-      {
-        id: 3,
-        title: "Ticket Assigned",
-        message: "Bug #123 has been assigned to you",
-        type: "warning",
-        read: true,
-        created_at: 1.day.ago
-      }
-    ]
-    
-    render json: notifications
+    notifications = current_user.notifications.recent.limit(20)
+    render json: notifications.as_json(only: [:id, :title, :message, :notification_type, :read, :created_at])
+  end
+
+  def count
+    unread_count = current_user.notifications.unread.count
+    render json: { count: unread_count }
   end
 
   def read
-    # Mark notification as read
+    notification = current_user.notifications.find(params[:id])
+    notification.mark_as_read!
     render json: { status: 'success' }
   end
 end

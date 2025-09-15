@@ -2,14 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, X, MoreHorizontal, Play, FileText, Edit, Copy, ExternalLink, Settings } from 'lucide-react';
+import { Search, Plus, X, MoreHorizontal, Play, FileText, Edit, Copy, ExternalLink, Settings, Table, Columns } from 'lucide-react';
 import { usersApi, projectsApi } from '@/lib/api';
 
-const Tickets = () => {
+interface TicketsProps {
+  addNotification?: (message: string) => void;
+}
+
+const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
   const [tickets, setTickets] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
@@ -33,6 +37,8 @@ const Tickets = () => {
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [showViewStatusDropdown, setShowViewStatusDropdown] = useState(false);
+  const [isLoadingTicket, setIsLoadingTicket] = useState(false);
+  const [viewMode, setViewMode] = useState<'board' | 'table'>('board');
   const [newIssue, setNewIssue] = useState({
     title: '',
     description: '',
@@ -43,7 +49,7 @@ const Tickets = () => {
     labels: '',
     milestone: '',
     project: '',
-    attachments: [] as File[]
+    attachments: [] as any[]
   });
 
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -78,7 +84,6 @@ const Tickets = () => {
       const response = await usersApi.getAll();
       setUsers(response.data);
     } catch (error) {
-      console.error('Failed to fetch users:', error);
       setUsers([]);
     }
   };
@@ -89,7 +94,6 @@ const Tickets = () => {
       const response = await projectsApi.getAll();
       setProjects(response.data);
     } catch (error) {
-      console.error('Failed to fetch projects:', error);
       setProjects([]);
     }
   };
@@ -161,6 +165,16 @@ const Tickets = () => {
       setSelectedLabels([]);
       setSelectedAssignee('');
       setSelectedProject('');
+      addNotification?.(`🎫 Ticket "${newIssue.title}" created successfully!`);
+      if (selectedAssignee) {
+        addNotification?.(`👥 Assigned to: ${selectedAssignee}`);
+      }
+      if (selectedProject) {
+        addNotification?.(`📁 Added to project: ${selectedProject}`);
+      }
+      if (selectedLabels.length > 0) {
+        addNotification?.(`🏷️ Labels added: ${selectedLabels.join(', ')}`);
+      }
       setNewIssue({
         title: '',
         description: '',
@@ -174,7 +188,7 @@ const Tickets = () => {
         attachments: []
       });
     } catch (error: any) {
-      console.error('Error creating ticket:', error);
+      // Error handled silently
     }
   };
 
@@ -195,8 +209,13 @@ const Tickets = () => {
         const updatedViewingTicket = updatedTickets.find(t => t.id === ticketId);
         setViewingTicket(updatedViewingTicket);
       }
+      
+      addNotification?.(`🔄 Ticket moved from "${tickets.find(t => t.id === ticketId)?.status}" to "${newStatus}"`);
+      if (newStatus === 'Done') {
+        addNotification?.(`✅ Ticket completed successfully!`);
+      }
     } catch (error) {
-      console.error('Error updating ticket status:', error);
+      // Error handled silently
     }
   };
 
@@ -225,6 +244,12 @@ const Tickets = () => {
       setViewingTicket(updatedViewingTicket);
     }
     setShowViewAssigneeDropdown(false);
+    
+    if (newAssignee) {
+      addNotification?.(`👥 Ticket assigned to: ${newAssignee}`);
+    } else {
+      addNotification?.(`🚫 Ticket unassigned`);
+    }
   };
 
   const handleLabelChange = (ticketId: number, label: string) => {
@@ -312,17 +337,40 @@ const Tickets = () => {
     const updatedViewingTicket = updatedTickets.find(t => t.id === viewingTicket.id);
     setViewingTicket(updatedViewingTicket);
     setComment('');
+    
+    addNotification?.(`💬 Comment added to ticket`);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
       const fileArray = Array.from(files);
-      setNewIssue({ ...newIssue, attachments: [...newIssue.attachments, ...fileArray] });
+      const processedFiles = await Promise.all(
+        fileArray.map(async (file) => {
+          const base64 = await convertFileToBase64(file);
+          return {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            base64: base64,
+            lastModified: file.lastModified
+          };
+        })
+      );
+      setNewIssue({ ...newIssue, attachments: [...newIssue.attachments, ...processedFiles] });
     }
   };
 
-  const handleViewMedia = (file: File, isVideo: boolean = false) => {
+  const handleViewMedia = (file: any, isVideo: boolean = false) => {
     const existingDialogs = document.querySelectorAll('[data-media-viewer]');
     existingDialogs.forEach(dialog => {
       if (document.body.contains(dialog)) {
@@ -335,23 +383,25 @@ const Tickets = () => {
     dialog.style.cssText = `
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.9); display: flex; align-items: center;
-      justify-content: center; z-index: 10000;
+      justify-content: center; z-index: 10000; cursor: pointer;
     `;
 
     const container = document.createElement('div');
     container.style.cssText = `
-      position: relative; max-width: 90%; max-height: 90%;
-      background: black; border-radius: 8px; overflow: hidden;
+      position: relative; max-width: 95%; max-height: 95%;
+      background: black; border-radius: 8px; overflow: visible;
+      cursor: default;
     `;
 
     const closeBtn = document.createElement('button');
     closeBtn.innerHTML = '✕';
     closeBtn.style.cssText = `
-      position: absolute; top: 15px; right: 15px; z-index: 10001;
+      position: absolute; top: -15px; right: -15px; z-index: 10002;
       width: 40px; height: 40px; border: none; border-radius: 50%;
-      background: rgba(255,255,255,0.9); color: black; cursor: pointer;
-      font-size: 20px; display: flex; align-items: center; justify-content: center;
-      font-weight: bold; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      background: rgba(255,255,255,0.95); color: black; cursor: pointer;
+      font-size: 18px; display: flex; align-items: center; justify-content: center;
+      font-weight: bold; box-shadow: 0 2px 15px rgba(0,0,0,0.5);
+      transition: all 0.2s ease;
     `;
 
     const cleanup = () => {
@@ -363,41 +413,101 @@ const Tickets = () => {
     if (isVideo) {
       const video = document.createElement('video');
       video.controls = true;
-      video.autoplay = true;
-      video.style.cssText = 'width: 100%; height: 100%; max-width: 900px; max-height: 700px; display: block;';
+      video.setAttribute('controlsList', 'nodownload');
+      video.style.cssText = `
+        width: 100%; height: auto; max-width: 90vw; max-height: 80vh;
+        display: block; border-radius: 8px; outline: none;
+      `;
 
-      const videoUrl = URL.createObjectURL(file);
-      video.src = videoUrl;
+      if (file.base64) {
+        video.src = file.base64;
+      } else {
+        const videoUrl = URL.createObjectURL(file);
+        video.src = videoUrl;
+      }
 
       const videoCleanup = () => {
         video.pause();
         video.src = '';
-        URL.revokeObjectURL(videoUrl);
+        if (!file.base64) {
+          URL.revokeObjectURL(video.src);
+        }
         cleanup();
       };
 
+      // Keyboard controls
+      const handleKeydown = (e: KeyboardEvent) => {
+        e.stopPropagation();
+        switch(e.key) {
+          case 'Escape':
+            videoCleanup();
+            break;
+          case ' ':
+            e.preventDefault();
+            video.paused ? video.play() : video.pause();
+            break;
+          case 'f':
+          case 'F':
+            if (video.requestFullscreen) {
+              video.requestFullscreen();
+            }
+            break;
+        }
+      };
+
+      document.addEventListener('keydown', handleKeydown);
+
       closeBtn.onclick = (e) => {
         e.stopPropagation();
+        document.removeEventListener('keydown', handleKeydown);
         videoCleanup();
+      };
+
+      closeBtn.onmouseenter = () => {
+        closeBtn.style.background = 'rgba(255,255,255,1)';
+        closeBtn.style.transform = 'scale(1.1)';
+      };
+
+      closeBtn.onmouseleave = () => {
+        closeBtn.style.background = 'rgba(255,255,255,0.95)';
+        closeBtn.style.transform = 'scale(1)';
       };
 
       dialog.onclick = (e) => {
         if (e.target === dialog) {
-          e.stopPropagation();
+          document.removeEventListener('keydown', handleKeydown);
           videoCleanup();
         }
+      };
+
+      // Prevent container clicks from closing
+      container.onclick = (e) => {
+        e.stopPropagation();
+      };
+
+      video.onclick = (e) => {
+        e.stopPropagation();
       };
 
       container.appendChild(video);
     } else {
       const img = document.createElement('img');
-      img.style.cssText = 'max-width: 100%; max-height: 100%; display: block; object-fit: contain;';
+      img.style.cssText = `
+        max-width: 90vw; max-height: 80vh; display: block;
+        object-fit: contain; border-radius: 8px; cursor: zoom-in;
+      `;
 
-      const imageUrl = URL.createObjectURL(file);
-      img.src = imageUrl;
+      if (file.base64) {
+        img.src = file.base64;
+      } else {
+        const imageUrl = URL.createObjectURL(file);
+        img.src = imageUrl;
+      }
 
       const imageCleanup = () => {
-        URL.revokeObjectURL(imageUrl);
+        if (!file.base64) {
+          URL.revokeObjectURL(img.src);
+        }
         cleanup();
       };
 
@@ -408,21 +518,23 @@ const Tickets = () => {
 
       dialog.onclick = (e) => {
         if (e.target === dialog) {
-          e.stopPropagation();
           imageCleanup();
         }
+      };
+
+      container.onclick = (e) => {
+        e.stopPropagation();
       };
 
       container.appendChild(img);
     }
 
-    container.onclick = (e) => {
-      e.stopPropagation();
-    };
-
     container.appendChild(closeBtn);
     dialog.appendChild(container);
     document.body.appendChild(dialog);
+
+    // Focus for keyboard controls
+    dialog.focus();
   };
 
   const removeFile = (index: number) => {
@@ -471,11 +583,22 @@ const Tickets = () => {
   );
 
   return (
-    <div className="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen overflow-hidden">
+    <div className="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen overflow-hidden relative">
+      {isLoadingTicket && (
+        <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-lg flex items-center space-x-3">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <span className="text-gray-900 dark:text-white font-medium">Opening ticket...</span>
+          </div>
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Project Board</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">Track and manage your issues</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
+            Track and manage your issues • 
+            <span className="text-sm">Drag tickets to move or Ctrl+click to advance status</span>
+          </p>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
@@ -491,6 +614,9 @@ const Tickets = () => {
                   Create new Tickets
                 </DialogTitle>
               </div>
+              <DialogDescription className="text-gray-600">
+                Create a new ticket to track issues, bugs, or feature requests.
+              </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4 py-4">
@@ -541,7 +667,7 @@ const Tickets = () => {
                                 <div key={index} className="relative group">
                                   {file.type.startsWith('image/') ? (
                                     <img
-                                      src={URL.createObjectURL(file)}
+                                      src={file.base64 || URL.createObjectURL(file)}
                                       alt={file.name}
                                       className="w-full h-20 object-cover rounded border cursor-pointer hover:opacity-80"
                                       onClick={() => handleViewMedia(file, false)}
@@ -782,7 +908,7 @@ const Tickets = () => {
         </Dialog>
       </div>
 
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center justify-between">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
@@ -792,6 +918,24 @@ const Tickets = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant={viewMode === 'board' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setViewMode('board')}
+          >
+            <Columns className="h-4 w-4 mr-2" />
+            Board
+          </Button>
+          <Button
+            variant={viewMode === 'table' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setViewMode('table')}
+          >
+            <Table className="h-4 w-4 mr-2" />
+            Table
+          </Button>
         </div>
       </div>
 
@@ -804,14 +948,31 @@ const Tickets = () => {
             </p>
           </div>
         </div>
-      ) : (
+      ) : viewMode === 'board' ? (
         <div className="grid grid-cols-5 gap-4 h-[calc(100vh-200px)]">
           {columns.map((column) => {
             const columnTickets = filteredTickets.filter(ticket => ticket.status === column.id);
 
             return (
               <div key={column.id} className="flex flex-col">
-                <div className={`${column.color} rounded-t-lg p-3 border-b border-gray-200 dark:border-gray-600`}>
+                <div 
+                  className={`${column.color} rounded-t-lg p-3 border-b border-gray-200 dark:border-gray-600`}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.style.backgroundColor = '#e0f2fe';
+                  }}
+                  onDragLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '';
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.style.backgroundColor = '';
+                    const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                    if (data.currentStatus !== column.id) {
+                      handleStatusChange(data.ticketId, column.id);
+                    }
+                  }}
+                >
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-gray-900 dark:text-white">{column.title}</h3>
                     <div className="flex items-center space-x-2">
@@ -825,25 +986,88 @@ const Tickets = () => {
                   </div>
                 </div>
 
-                <div className="flex-1 bg-white dark:bg-gray-800 rounded-b-lg border-l border-r border-b border-gray-200 dark:border-gray-600 p-2 overflow-y-auto">
+                <div 
+                  className="flex-1 bg-white dark:bg-gray-800 rounded-b-lg border-l border-r border-b border-gray-200 dark:border-gray-600 p-2 overflow-y-auto"
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.style.backgroundColor = '#f0f9ff';
+                  }}
+                  onDragLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '';
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.style.backgroundColor = '';
+                    const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                    if (data.currentStatus !== column.id) {
+                      handleStatusChange(data.ticketId, column.id);
+                    }
+                  }}
+                >
                   <div className="space-y-2">
                     {columnTickets.map((ticket) => (
                       <Card
                         key={ticket.id}
-                        className="cursor-pointer hover:shadow-md transition-shadow bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600"
-                        onClick={() => {
-                          setViewingTicket(ticket);
-                          setIsViewDialogOpen(true);
+                        className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 active:scale-[0.98] active:shadow-md select-none"
+                        draggable
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData('text/plain', JSON.stringify({
+                            ticketId: ticket.id,
+                            currentStatus: ticket.status
+                          }));
                         }}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                          if (data.ticketId !== ticket.id) {
+                            handleStatusChange(data.ticketId, column.id);
+                          }
+                        }}
+                        onClick={async (e) => {
+                          if (e.ctrlKey || e.metaKey) {
+                            // Ctrl/Cmd + click to change status to next column
+                            const currentIndex = columns.findIndex(col => col.id === ticket.status);
+                            const nextIndex = (currentIndex + 1) % columns.length;
+                            handleStatusChange(ticket.id, columns[nextIndex].id);
+                          } else {
+                            // Regular click to open ticket
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setIsLoadingTicket(true);
+                            setTimeout(() => {
+                              setViewingTicket(ticket);
+                              setIsViewDialogOpen(true);
+                              setIsLoadingTicket(false);
+                            }, 150);
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setIsLoadingTicket(true);
+                            setTimeout(() => {
+                              setViewingTicket(ticket);
+                              setIsViewDialogOpen(true);
+                              setIsLoadingTicket(false);
+                            }, 150);
+                          }
+                        }}
+                        tabIndex={0}
+                        role="button"
+                        aria-label={`Open ticket: ${ticket.title}`}
                       >
-                        <CardContent className="p-3">
+                        <CardContent className="p-3 group-hover:bg-gray-50 dark:group-hover:bg-gray-600 transition-colors">
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                              <span className="text-lg">{getTypeIcon(ticket.issueType || ticket.issue_type)}</span>
-                              <span className="text-xs text-gray-500 dark:text-gray-400">#{ticket.id}</span>
+                              <span className="text-lg group-hover:scale-110 transition-transform">{getTypeIcon(ticket.issueType || ticket.issue_type)}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">#{ticket.id}</span>
                             </div>
 
-                            <h4 className="font-medium text-sm text-gray-900 dark:text-white line-clamp-2">
+                            <h4 className="font-medium text-sm text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                               {ticket.title}
                             </h4>
 
@@ -895,6 +1119,122 @@ const Tickets = () => {
                       Add item
                     </Button>
                   </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {columns.map((column) => {
+            const columnTickets = filteredTickets.filter(ticket => ticket.status === column.id);
+            
+            if (columnTickets.length === 0) return null;
+            
+            return (
+              <div key={column.id} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+                <div className={`${column.color} p-4 rounded-t-lg border-b border-gray-200 dark:border-gray-600`}>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">{column.title}</h3>
+                    <Badge variant="secondary" className="text-xs">
+                      {columnTickets.length}
+                    </Badge>
+                  </div>
+                </div>
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 dark:bg-gray-700">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Title</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Priority</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Assignee</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Project</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Labels</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Created</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
+                      {columnTickets.map((ticket) => (
+                        <tr 
+                          key={ticket.id} 
+                          className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                          onClick={() => {
+                            setIsLoadingTicket(true);
+                            setTimeout(() => {
+                              setViewingTicket(ticket);
+                              setIsViewDialogOpen(true);
+                              setIsLoadingTicket(false);
+                            }, 150);
+                          }}
+                        >
+                          <td className="px-4 py-4 whitespace-nowrap text-sm font-mono text-gray-500 dark:text-gray-400">
+                            #{ticket.id}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <span className="text-lg mr-2">{getTypeIcon(ticket.issueType || ticket.issue_type)}</span>
+                              <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                {ticket.title}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            {ticket.issueType || ticket.issue_type || 'Bug'}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <Badge className={`text-xs ${getPriorityColor(ticket.priority)}`}>
+                              {ticket.priority}
+                            </Badge>
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            {ticket.assignee ? (
+                              <div className="flex items-center">
+                                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-medium mr-2">
+                                  {ticket.assignee.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
+                                </div>
+                                <span className="text-sm text-gray-900 dark:text-white">{ticket.assignee}</span>
+                              </div>
+                            ) : (
+                              <span className="text-sm text-gray-500 dark:text-gray-400">Unassigned</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            {ticket.project ? (
+                              <Badge variant="outline" className="text-xs bg-orange-50">
+                                {ticket.project}
+                              </Badge>
+                            ) : (
+                              <span className="text-sm text-gray-500 dark:text-gray-400">-</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            {ticket.labels && ticket.labels.length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {ticket.labels.slice(0, 2).map((label: string, index: number) => (
+                                  <Badge key={index} variant="outline" className="text-xs">
+                                    {label}
+                                  </Badge>
+                                ))}
+                                {ticket.labels.length > 2 && (
+                                  <Badge variant="outline" className="text-xs">
+                                    +{ticket.labels.length - 2}
+                                  </Badge>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-sm text-gray-500 dark:text-gray-400">-</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            {new Date(ticket.created_at).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             );
@@ -1009,7 +1349,7 @@ const Tickets = () => {
                                   📎 Attachments ({viewingTicket.attachments.length})
                                 </h4>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                  {viewingTicket.attachments.map((file: File, index: number) => {
+                                  {viewingTicket.attachments.map((file: any, index: number) => {
                                     const isImage = file.type?.startsWith('image/');
                                     const isVideo = file.type?.startsWith('video/');
 
@@ -1018,7 +1358,7 @@ const Tickets = () => {
                                         <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden border">
                                           {isImage ? (
                                             <img
-                                              src={URL.createObjectURL(file)}
+                                              src={file.base64 || URL.createObjectURL(file)}
                                               alt={file.name}
                                               className="w-full h-full object-cover cursor-pointer hover:opacity-80"
                                               onClick={() => handleViewMedia(file, false)}
@@ -1029,12 +1369,13 @@ const Tickets = () => {
                                               onClick={() => handleViewMedia(file, true)}
                                             >
                                               <video
-                                                src={URL.createObjectURL(file)}
+                                                src={file.base64 || URL.createObjectURL(file)}
                                                 className="w-full h-full object-cover"
                                                 muted
+                                                preload="metadata"
                                               />
-                                              <div className="absolute inset-0 flex items-center justify-center">
-                                                <Play className="h-8 w-8 text-white bg-black bg-opacity-50 rounded-full p-1" />
+                                              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                                                <Play className="h-12 w-12 text-white bg-black bg-opacity-70 rounded-full p-2" />
                                               </div>
                                             </div>
                                           ) : (

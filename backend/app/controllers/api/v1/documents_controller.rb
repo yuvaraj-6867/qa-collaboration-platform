@@ -74,6 +74,8 @@ class Api::V1::DocumentsController < ApplicationController
       tags: document.tag_list,
       folder: document.folder&.name,
       uploaded_by: document.user.full_name,
+      file_url: document.file.attached? ? rails_blob_path(document.file, only_path: true) : nil,
+      is_media: document.content_type&.start_with?('image/', 'video/'),
       created_at: document.created_at,
       updated_at: document.updated_at
     }
