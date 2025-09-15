@@ -12,6 +12,7 @@ pidfile ENV.fetch('PIDFILE', 'tmp/pids/server.pid')
 # Use "port" to specify the port that Puma will listen on to receive
 # requests; default is 3000.
 port ENV.fetch('PORT', 3001)
+bind "0.0.0.0:#{ENV.fetch('PORT', 3001)}"
 
 # Specifies the `worker_timeout` threshold that Puma will use to wait before
 # terminating a worker in development environments.
