@@ -10,7 +10,7 @@ class InvitationMailer < ApplicationMailer
 
     mail(
       to: email,
-      subject: 'Invitation to join QA Collaboration Platform'
+      subject: 'Invitation to join QA Platform'
     )
   end
 

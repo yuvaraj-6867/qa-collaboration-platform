@@ -1,4 +1,4 @@
-# QA Collaboration Platform API Documentation
+# QA Platform API Documentation
 
 ## Base URL
 ```

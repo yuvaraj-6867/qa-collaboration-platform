@@ -1,0 +1,1 @@
+#!/bin/bash\n\n# Build the app\nnpm run build\n\n# Upload to S3\naws s3 sync dist/ s3://your-bucket-name --delete\n\n# Invalidate CloudFront cache\naws cloudfront create-invalidation --distribution-id YOUR_DISTRIBUTION_ID --paths \"/*\"\n\necho \"Deployment complete!\"\n

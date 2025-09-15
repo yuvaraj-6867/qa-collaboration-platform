@@ -59,7 +59,7 @@ const Projects: React.FC<ProjectsProps> = ({ addNotification }) => {
                     {
                         id: 1,
                         name: 'QA Platform Testing',
-                        description: 'Main testing project for QA collaboration platform',
+                        description: 'Main testing project for QA platform',
                         status: 'active' as const,
                         created_by: 'Admin User',
                         created_at: new Date().toISOString(),
@@ -83,7 +83,7 @@ const Projects: React.FC<ProjectsProps> = ({ addNotification }) => {
                 {
                     id: 1,
                     name: 'QA Platform Testing',
-                    description: 'Main testing project for QA collaboration platform',
+                    description: 'Main testing project for QA platform',
                     status: 'active' as const,
                     created_by: 'Admin User',
                     created_at: new Date().toISOString(),

@@ -1,4 +1,4 @@
-# QA Collaboration Platform - Backend API
+# QA Platform - Backend API
 
 A Ruby on Rails API for managing test cases, tickets, and QA workflows.
 

@@ -1,4 +1,4 @@
-# QA Collaboration Platform - User Guide
+# QA Platform - User Guide
 
 ## Quick Start
 

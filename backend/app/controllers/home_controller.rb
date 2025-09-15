@@ -3,7 +3,7 @@ class HomeController < ApplicationController
 
   def index
     render json: {
-      message: "QA Collaboration Platform API",
+      message: "QA Platform API",
       version: "1.0.0",
       endpoints: {
         authentication: "/api/v1/auth/login",

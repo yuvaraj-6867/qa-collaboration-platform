@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Setting up QA Collaboration Platform..."
+echo "🚀 Setting up QA Platform..."
 
 # Backend setup
 echo "📦 Setting up Rails backend..."
