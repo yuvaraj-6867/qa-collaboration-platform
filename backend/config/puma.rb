@@ -1,8 +1,5 @@
 # Puma configuration file
 
-# The directory to operate out of.
-directory '/home/yuvaraj/qa-collaboration-platform/backend'
-
 # Set the environment in which the rack's app will run.
 environment ENV.fetch('RAILS_ENV', 'development')
 
