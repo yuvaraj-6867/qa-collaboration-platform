@@ -6,15 +6,15 @@
 3. Deploy from `frontend/` folder
 4. Auto-deploys on push
 
-## Backend + Database (Railway - Free)
-1. Connect Railway to your GitHub repo
-2. Deploy from `backend/` folder
-3. Add PostgreSQL service (free tier)
+## Backend + Database (Render - Free)
+1. Connect Render to your GitHub repo
+2. **IMPORTANT**: Set Root Directory to `backend/` in service settings
+3. Add PostgreSQL database (free tier)
 4. Set environment variables:
    - `DATABASE_URL` (auto-provided)
    - `RAILS_ENV=production`
 
-## Alternative: Render (Free)
+## Alternative: Heroku (Free tier ended)
 - Web Service: Deploy backend
 - PostgreSQL: Free database
 - Static Site: Deploy frontend
