@@ -19,6 +19,7 @@ gem "rack-cors"
 gem "jbuilder"
 gem "jwt"
 gem "bcrypt"
+gem "useragent"
 
 # Background jobs
 gem "sidekiq"

@@ -267,6 +267,7 @@ DEPENDENCIES
   solid_queue
   sqlite3 (~> 1.4)
   thruster
+  useragent
 
 RUBY VERSION
    ruby 3.2.2p53
