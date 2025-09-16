@@ -19,11 +19,7 @@ interface Project {
     updated_at: string;
 }
 
-interface ProjectsProps {
-    addNotification?: (message: string) => void;
-}
-
-const Projects: React.FC<ProjectsProps> = ({ addNotification }) => {
+const Projects: React.FC = () => {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');

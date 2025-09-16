@@ -23,11 +23,7 @@ interface User {
   created_at: string;
 }
 
-interface UsersProps {
-  addNotification?: (message: string) => void;
-}
-
-const Users: React.FC<UsersProps> = ({ addNotification }) => {
+const Users: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
