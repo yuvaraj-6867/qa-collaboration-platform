@@ -34,24 +34,24 @@ function App() {
   return (
     <ThemeProvider>
       <SnackbarProvider>
-        <Router>
+        <Router basename="/qa-platform">
           <div className="min-h-screen bg-background">
             {isAuthenticated && <Navigation user={user} onLogout={handleLogout} />}
-            <div className={isAuthenticated ? "pt-16" : ""}>
+            <div className={isAuthenticated ? "ml-64 pt-16" : ""}>
               <Routes>
-              <Route path="/login" element={!isAuthenticated ? <Login onLogin={handleLogin} /> : <Navigate to="/dashboard" />} />
+              <Route path="/login" element={!isAuthenticated ? <Login onLogin={handleLogin} /> : <Navigate to="/dashboard" replace />} />
               <Route path="/accept-invitation" element={<AcceptInvitation />} />
-              <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
-              <Route path="/test-cases" element={isAuthenticated ? <TestCases /> : <Navigate to="/login" />} />
-              <Route path="/automation" element={isAuthenticated ? <Automation /> : <Navigate to="/login" />} />
-              <Route path="/tickets" element={isAuthenticated ? <Tickets /> : <Navigate to="/login" />} />
-              <Route path="/documents" element={isAuthenticated ? <Documents /> : <Navigate to="/login" />} />
-              <Route path="/analytics" element={isAuthenticated ? <Analytics /> : <Navigate to="/login" />} />
-              <Route path="/projects" element={isAuthenticated ? <Projects /> : <Navigate to="/login" />} />
-              <Route path="/users" element={isAuthenticated ? <Users /> : <Navigate to="/login" />} />
-              <Route path="/settings" element={isAuthenticated ? <Settings /> : <Navigate to="/login" />} />
-              <Route path="/notifications" element={isAuthenticated ? <AllNotifications /> : <Navigate to="/login" />} />
-                <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} />
+              <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />} />
+              <Route path="/test-cases" element={isAuthenticated ? <TestCases /> : <Navigate to="/login" replace />} />
+              <Route path="/automation" element={isAuthenticated ? <Automation /> : <Navigate to="/login" replace />} />
+              <Route path="/tickets" element={isAuthenticated ? <Tickets /> : <Navigate to="/login" replace />} />
+              <Route path="/documents" element={isAuthenticated ? <Documents /> : <Navigate to="/login" replace />} />
+              <Route path="/analytics" element={isAuthenticated ? <Analytics /> : <Navigate to="/login" replace />} />
+              <Route path="/projects" element={isAuthenticated ? <Projects /> : <Navigate to="/login" replace />} />
+              <Route path="/users" element={isAuthenticated ? <Users /> : <Navigate to="/login" replace />} />
+              <Route path="/settings" element={isAuthenticated ? <Settings /> : <Navigate to="/login" replace />} />
+              <Route path="/notifications" element={isAuthenticated ? <AllNotifications /> : <Navigate to="/login" replace />} />
+                <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
               </Routes>
             </div>
           </div>
