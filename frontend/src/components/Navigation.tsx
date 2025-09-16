@@ -32,21 +32,7 @@ const Navigation = ({ user, onLogout }: NavigationProps) => {
     }
   }, []);
 
-  const allPages = [
-    { name: 'Dashboard', path: '/dashboard', icon: BarChart3 },
-    { name: 'Test Cases', path: '/test-cases', icon: FileText },
-    { name: 'Tickets', path: '/tickets', icon: Ticket },
-    { name: 'Automation', path: '/automation', icon: Bot },
-    { name: 'Documents', path: '/documents', icon: File },
-    { name: 'Analytics', path: '/analytics', icon: TrendingUp },
-    { name: 'Projects', path: '/projects', icon: TrendingUp },
-    { name: 'Users', path: '/users', icon: Users },
-    { name: 'Settings', path: '/settings', icon: Settings }
-  ];
 
-  const availablePages = currentUser.role === 'developer'
-    ? allPages.filter(page => page.name !== 'Automation')
-    : allPages;
 
   const handleLogout = () => {
     onLogout();
