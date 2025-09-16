@@ -46,7 +46,10 @@ const Login = ({ onLogin }: LoginProps) => {
       showSuccess('Login successful! Welcome back.');
       setTimeout(() => onLogin(data.token, data.user), 1000);
     } catch (err: any) {
-      showError(getErrorMessage(err));
+      console.error('Login error:', err);
+      const errorMessage = getErrorMessage(err);
+      console.log('Error message:', errorMessage);
+      showError(errorMessage);
     } finally {
       setLoading(false);
     }

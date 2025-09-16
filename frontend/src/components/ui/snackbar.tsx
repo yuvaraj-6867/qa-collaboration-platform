@@ -39,7 +39,7 @@ const Snackbar = ({ message, type = 'info', duration = 5000, onClose }: Snackbar
   };
 
   return (
-    <div className={`fixed top-4 right-4 z-50 transition-all duration-300 ${
+    <div className={`fixed top-20 right-4 z-[9999] transition-all duration-300 ${
       isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
     }`}>
       <div className={`${getStyles()} px-4 py-3 rounded-lg shadow-lg flex items-center space-x-3 min-w-80 max-w-md`}>
