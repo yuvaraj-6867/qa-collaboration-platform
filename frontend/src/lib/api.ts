@@ -8,9 +8,9 @@ const getAuthHeaders = () => {
   };
 };
 
-const handleResponse = async (response: Response) => {
+const handleResponse = async (response: Response, skipAuthRedirect = false) => {
   if (!response.ok) {
-    if (response.status === 401) {
+    if (response.status === 401 && !skipAuthRedirect) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
@@ -40,7 +40,7 @@ export const authApi = {
       headers: getAuthHeaders(),
       body: JSON.stringify({ email, password })
     });
-    return { data: await handleResponse(response) };
+    return { data: await handleResponse(response, true) };
   },
 
   register: async (userData: any) => {

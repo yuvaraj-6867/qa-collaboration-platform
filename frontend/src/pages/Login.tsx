@@ -64,9 +64,21 @@ const Login = ({ onLogin }: LoginProps) => {
       console.error('Login error:', err);
       const errorMessage = getErrorMessage(err);
       console.log('Error message:', errorMessage);
-      showError(errorMessage);
-      setFieldErrors({ email: 'Invalid email or password', password: 'Invalid email or password' });
+      
+      // Show error in snackbar
+      showError('Invalid email or password. Please try again.');
+      
+      // Show field errors
+      setFieldErrors({ 
+        email: 'Please check your email', 
+        password: 'Please check your password' 
+      });
+      
+      // Clear password for security
       setPassword('');
+      
+      // Ensure we stay on signin page
+      console.log('Staying on signin page');
     } finally {
       setLoading(false);
     }
@@ -126,7 +138,12 @@ const Login = ({ onLogin }: LoginProps) => {
 
           <div className="flex bg-white/20 rounded-full p-2 max-w-sm mx-auto backdrop-blur-lg">
             <button
-              onClick={() => setCurrentView('signin')}
+              onClick={() => {
+                setCurrentView('signin');
+                setFieldErrors({});
+                setEmail('');
+                setPassword('');
+              }}
               className="flex-1 py-3 px-6 rounded-full text-white font-medium transition-all hover:bg-white/20"
             >
               Sign in
@@ -150,7 +167,12 @@ const Login = ({ onLogin }: LoginProps) => {
           <div className="bg-white rounded-2xl shadow-2xl p-8">
             <div className="flex items-center mb-6">
               <button
-                onClick={() => setCurrentView('welcome')}
+                onClick={() => {
+                  setCurrentView('welcome');
+                  setFieldErrors({});
+                  setEmail('');
+                  setPassword('');
+                }}
                 className="flex items-center text-purple-600 hover:text-purple-800"
               >
                 <ArrowLeft className="h-5 w-5 mr-2" />
@@ -172,7 +194,6 @@ const Login = ({ onLogin }: LoginProps) => {
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                     fieldErrors.email ? 'border-red-500' : 'border-gray-300'
                   }`}
-                  required
                 />
                 {fieldErrors.email && (
                   <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
@@ -188,12 +209,11 @@ const Login = ({ onLogin }: LoginProps) => {
                   className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                     fieldErrors.password ? 'border-red-500' : 'border-gray-300'
                   }`}
-                  required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-3 text-gray-500 hover:text-gray-700 z-10"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -258,7 +278,6 @@ const Login = ({ onLogin }: LoginProps) => {
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="First Name *"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
               />
             </div>
 
@@ -269,7 +288,6 @@ const Login = ({ onLogin }: LoginProps) => {
                 onChange={(e) => setLastName(e.target.value)}
                 placeholder="Last Name *"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
               />
             </div>
 
@@ -280,7 +298,6 @@ const Login = ({ onLogin }: LoginProps) => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email *"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
               />
             </div>
 
@@ -311,7 +328,6 @@ const Login = ({ onLogin }: LoginProps) => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password *"
                 className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
               />
               <button
                 type="button"
