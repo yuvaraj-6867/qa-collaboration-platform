@@ -1,14 +1,12 @@
-FROM ruby:3.2-alpine
-
-RUN apk add --no-cache build-base postgresql-dev nodejs npm
+FROM ruby:3.3.0
 
 WORKDIR /app
 
 COPY Gemfile Gemfile.lock ./
-RUN bundle install --without development test
+RUN bundle install
 
 COPY . .
 
-EXPOSE 3000
+EXPOSE 3001
 
-CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
+CMD ["rails", "server", "-b", "0.0.0.0", "-p", "3001"]
