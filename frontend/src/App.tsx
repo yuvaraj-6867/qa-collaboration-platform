@@ -24,17 +24,17 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/qa-platform/login';
+    window.location.href = '/login';
   };
 
   const handleLogin = (_token: string, _user: any) => {
-    window.location.href = '/qa-platform/dashboard';
+    window.location.href = '/dashboard';
   };
 
   return (
     <ThemeProvider>
       <SnackbarProvider>
-        <Router basename="/qa-platform">
+        <Router>
           <div className="min-h-screen bg-background">
             {isAuthenticated && <Navigation user={user} onLogout={handleLogout} />}
             <div className={isAuthenticated ? "ml-64 pt-16" : ""}>
