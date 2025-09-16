@@ -18,7 +18,7 @@ const Analytics = () => {
   return (
     <div className="p-6 space-y-6 bg-white dark:bg-gray-900 min-h-screen">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">📊 Analytics Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white"> Analytics Dashboard</h1>
         <div className="flex gap-2">
           <Select value={timeRange} onValueChange={setTimeRange}>
             <SelectTrigger className="w-32 bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600">

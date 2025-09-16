@@ -49,7 +49,6 @@ const Settings: React.FC = () => {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState({ type: '', text: '' });
 
-  // Get logged-in user data
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 
   useEffect(() => {
@@ -138,7 +137,7 @@ const Settings: React.FC = () => {
   return (
     <div className="p-6 space-y-6 bg-white dark:bg-gray-900 min-h-screen">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">⚙️ Settings</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
       </div>
 
       <div className="space-y-6">
@@ -320,7 +319,7 @@ const Settings: React.FC = () => {
         {activeTab === 'appearance' && (
           <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardHeader>
-              <CardTitle className="text-gray-900 dark:text-white">🎨 Appearance</CardTitle>
+              <CardTitle className="text-gray-900 dark:text-white"> Appearance</CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400">
                 Customize the look and feel of your workspace
               </CardDescription>

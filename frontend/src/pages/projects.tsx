@@ -54,7 +54,6 @@ const Projects: React.FC<ProjectsProps> = ({ addNotification }) => {
                 const data = await response.json();
                 setProjects(data);
             } else {
-                // Use sample projects if API fails
                 const sampleProjects = [
                     {
                         id: 1,
@@ -78,7 +77,6 @@ const Projects: React.FC<ProjectsProps> = ({ addNotification }) => {
                 setProjects(sampleProjects);
             }
         } catch (error) {
-            // Use sample projects on error
             const sampleProjects = [
                 {
                     id: 1,
@@ -106,12 +104,9 @@ const Projects: React.FC<ProjectsProps> = ({ addNotification }) => {
             setError('Project description is required');
             return;
         }
-
         setError('');
-
-        // Create project locally immediately
         const createdProject = {
-            id: Date.now(), // Use timestamp as ID
+            id: Date.now(),
             name: newProject.name,
             description: newProject.description,
             status: newProject.status,
@@ -129,8 +124,6 @@ const Projects: React.FC<ProjectsProps> = ({ addNotification }) => {
             addNotification(`📊 Status: ${newProject.status.toUpperCase()}`);
             addNotification(`📅 Ready for test cases and tickets`);
         }
-
-        // Try to sync with backend
         try {
             const token = localStorage.getItem('token');
             await fetch('http://localhost:3001/api/v1/projects', {

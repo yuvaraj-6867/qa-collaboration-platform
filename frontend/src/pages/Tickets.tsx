@@ -165,15 +165,15 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
       setSelectedLabels([]);
       setSelectedAssignee('');
       setSelectedProject('');
-      addNotification?.(`🎫 Ticket "${newIssue.title}" created successfully!`);
+      addNotification?.(` Ticket "${newIssue.title}" created successfully!`);
       if (selectedAssignee) {
-        addNotification?.(`👥 Assigned to: ${selectedAssignee}`);
+        addNotification?.(` Assigned to: ${selectedAssignee}`);
       }
       if (selectedProject) {
-        addNotification?.(`📁 Added to project: ${selectedProject}`);
+        addNotification?.(` Added to project: ${selectedProject}`);
       }
       if (selectedLabels.length > 0) {
-        addNotification?.(`🏷️ Labels added: ${selectedLabels.join(', ')}`);
+        addNotification?.(` Labels added: ${selectedLabels.join(', ')}`);
       }
       setNewIssue({
         title: '',
@@ -188,7 +188,6 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
         attachments: []
       });
     } catch (error: any) {
-      // Error handled silently
     }
   };
 
@@ -210,12 +209,11 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
         setViewingTicket(updatedViewingTicket);
       }
       
-      addNotification?.(`🔄 Ticket moved from "${tickets.find(t => t.id === ticketId)?.status}" to "${newStatus}"`);
+      addNotification?.(` Ticket moved from "${tickets.find(t => t.id === ticketId)?.status}" to "${newStatus}"`);
       if (newStatus === 'Done') {
-        addNotification?.(`✅ Ticket completed successfully!`);
+        addNotification?.(` Ticket completed successfully!`);
       }
     } catch (error) {
-      // Error handled silently
     }
   };
 
@@ -246,9 +244,9 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
     setShowViewAssigneeDropdown(false);
     
     if (newAssignee) {
-      addNotification?.(`👥 Ticket assigned to: ${newAssignee}`);
+      addNotification?.(` Ticket assigned to: ${newAssignee}`);
     } else {
-      addNotification?.(`🚫 Ticket unassigned`);
+      addNotification?.(` Ticket unassigned`);
     }
   };
 
@@ -480,7 +478,6 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
         }
       };
 
-      // Prevent container clicks from closing
       container.onclick = (e) => {
         e.stopPropagation();
       };
@@ -533,7 +530,6 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
     dialog.appendChild(container);
     document.body.appendChild(dialog);
 
-    // Focus for keyboard controls
     dialog.focus();
   };
 
@@ -554,12 +550,12 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'Bug': return '🐛';
-      case 'Feature Request': return '✨';
-      case 'Task': return '📋';
-      case 'Documentation': return '📚';
-      case 'Improvement': return '🔧';
-      default: return '📝';
+      case 'Bug': return '';
+      case 'Feature Request': return '';
+      case 'Task': return '';
+      case 'Documentation': return '';
+      case 'Improvement': return '';
+      default: return '';
     }
   };
 
@@ -1028,12 +1024,10 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
                         }}
                         onClick={async (e) => {
                           if (e.ctrlKey || e.metaKey) {
-                            // Ctrl/Cmd + click to change status to next column
                             const currentIndex = columns.findIndex(col => col.id === ticket.status);
                             const nextIndex = (currentIndex + 1) % columns.length;
                             handleStatusChange(ticket.id, columns[nextIndex].id);
                           } else {
-                            // Regular click to open ticket
                             e.preventDefault();
                             e.stopPropagation();
                             setIsLoadingTicket(true);

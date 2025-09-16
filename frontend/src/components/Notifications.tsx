@@ -20,7 +20,6 @@ const Notifications = () => {
 
   useEffect(() => {
     loadNotifications();
-    // Listen for notification events
     window.addEventListener('userCreated', handleUserCreated);
     window.addEventListener('userAssigned', handleUserAssigned);
     window.addEventListener('userLoggedIn', handleUserLoggedIn);

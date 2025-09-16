@@ -90,7 +90,6 @@ const Users: React.FC<UsersProps> = ({ addNotification }) => {
       }));
       setUsers(updatedUsers);
     } catch (error) {
-      // Error handled silently
     } finally {
       setLoading(false);
     }
@@ -142,7 +141,7 @@ const Users: React.FC<UsersProps> = ({ addNotification }) => {
   return (
     <div className="p-6 space-y-6 bg-white dark:bg-gray-900 min-h-screen">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">👥 Team Management</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white"> Team Management</h1>
         <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-blue-600 hover:bg-blue-700 text-white">

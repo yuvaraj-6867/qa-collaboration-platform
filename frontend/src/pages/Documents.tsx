@@ -71,8 +71,6 @@ const Documents = () => {
     const file = event.target.files?.[0];
     if (file) {
       setNewDocument({ ...newDocument, file, title: file.name.split('.')[0] });
-
-      // Check if it's an Excel file with test cases
       if (file.name.toLowerCase().includes('testcase') || file.name.toLowerCase().includes('test_case')) {
         readExcelFile(file);
       }
@@ -147,21 +145,16 @@ const Documents = () => {
     const val = value.toLowerCase();
     if (val.includes('high') || val.includes('1')) return 1;
     if (val.includes('low') || val.includes('3')) return 3;
-    return 2; // medium
+    return 2;
   };
 
   const importTestCases = () => {
-    // Save test cases to localStorage
     const existingTestCases = JSON.parse(localStorage.getItem('testCases') || '[]');
     const updatedTestCases = [...existingTestCases, ...processedTestCases];
     localStorage.setItem('testCases', JSON.stringify(updatedTestCases));
-
-    // Continue with document upload
     handleUploadDocument();
     setShowTestCasePreview(false);
-    
-    // Add notification
-    if ((window as any).addNotification) {
+        if ((window as any).addNotification) {
       (window as any).addNotification(
         'Test Cases Imported', 
         `Successfully imported ${processedTestCases.length} test cases to the "Test Cases" folder. You can view them in the Test Cases page.`, 
@@ -438,7 +431,6 @@ const Documents = () => {
         )}
       </div>
 
-      {/* Test Case Preview Dialog */}
       <Dialog open={showTestCasePreview} onOpenChange={setShowTestCasePreview}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
