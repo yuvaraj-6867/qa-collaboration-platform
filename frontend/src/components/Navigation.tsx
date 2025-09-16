@@ -36,7 +36,7 @@ const Navigation = ({ user, onLogout }: NavigationProps) => {
 
   const handleLogout = () => {
     onLogout();
-    navigate('/');
+    navigate('/login');
   };
 
   return (

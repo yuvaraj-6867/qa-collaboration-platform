@@ -24,11 +24,11 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/login';
+    window.location.href = '/qa-platform/login';
   };
 
   const handleLogin = (_token: string, _user: any) => {
-    window.location.href = '/dashboard';
+    window.location.href = '/qa-platform/dashboard';
   };
 
   return (
