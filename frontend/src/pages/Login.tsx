@@ -31,7 +31,7 @@ const Login = ({ onLogin }: LoginProps) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [currentView, setCurrentView] = useState<'welcome' | 'signin' | 'signup'>('welcome');
-  const [fieldErrors, setFieldErrors] = useState<{email?: string; password?: string}>({});
+  const [fieldErrors, setFieldErrors] = useState<{email?: string; password?: string; firstName?: string; lastName?: string; confirmPassword?: string}>({});
   const { showError, showSuccess } = useGlobalSnackbar();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -59,6 +59,16 @@ const Login = ({ onLogin }: LoginProps) => {
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       showSuccess('Login successful! Welcome back.');
+      
+      // Add login notification
+      if ((window as any).addNotification) {
+        (window as any).addNotification(
+          'Login Successful', 
+          `Welcome back, ${data.user.first_name || data.user.email}!`, 
+          'success'
+        );
+      }
+      
       setTimeout(() => onLogin(data.token, data.user), 1000);
     } catch (err: any) {
       console.error('Login error:', err);
@@ -86,10 +96,22 @@ const Login = ({ onLogin }: LoginProps) => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFieldErrors({});
     setLoading(true);
 
-    if (password !== confirmPassword) {
-      showError('Password and confirmation do not match');
+    // Basic validation
+    const errors: {firstName?: string; lastName?: string; email?: string; password?: string; confirmPassword?: string} = {};
+    if (!firstName) errors.firstName = 'First name is required';
+    if (!lastName) errors.lastName = 'Last name is required';
+    if (!email) errors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(email)) errors.email = 'Invalid email format';
+    if (!password) errors.password = 'Password is required';
+    else if (password.length < 6) errors.password = 'Password must be at least 6 characters';
+    if (!confirmPassword) errors.confirmPassword = 'Confirm password is required';
+    else if (password !== confirmPassword) errors.confirmPassword = 'Passwords do not match';
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       setLoading(false);
       return;
     }
@@ -109,6 +131,15 @@ const Login = ({ onLogin }: LoginProps) => {
       if (data.redirect_to_signin) {
         showSuccess('Registration successful! Please sign in.');
         setCurrentView('signin');
+        // Keep email but clear password fields for security
+        setPassword('');
+        setConfirmPassword('');
+        setFirstName('');
+        setLastName('');
+        setPhone('');
+        setLocation('');
+        setAgreeToTerms(false);
+        setFieldErrors({});
       } else {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
@@ -149,7 +180,18 @@ const Login = ({ onLogin }: LoginProps) => {
               Sign in
             </button>
             <button
-              onClick={() => setCurrentView('signup')}
+              onClick={() => {
+                setCurrentView('signup');
+                setFieldErrors({});
+                setFirstName('');
+                setLastName('');
+                setEmail('');
+                setPassword('');
+                setConfirmPassword('');
+                setPhone('');
+                setLocation('');
+                setAgreeToTerms(false);
+              }}
               className="flex-1 py-3 px-6 rounded-full text-purple-600 bg-white font-medium transition-all hover:bg-gray-100"
             >
               Sign up
@@ -240,7 +282,12 @@ const Login = ({ onLogin }: LoginProps) => {
             <div className="mt-6 text-center">
               <span className="text-sm text-gray-600">Don't have an account? </span>
               <button
-                onClick={() => setCurrentView('signup')}
+                onClick={() => {
+                  setCurrentView('signup');
+                  setFieldErrors({});
+                  setEmail('');
+                  setPassword('');
+                }}
                 className="text-sm text-purple-600 hover:text-purple-800 font-medium"
               >
                 Sign up
@@ -258,7 +305,18 @@ const Login = ({ onLogin }: LoginProps) => {
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <div className="flex items-center mb-6">
             <button
-              onClick={() => setCurrentView('welcome')}
+              onClick={() => {
+                setCurrentView('welcome');
+                setFieldErrors({});
+                setFirstName('');
+                setLastName('');
+                setEmail('');
+                setPassword('');
+                setConfirmPassword('');
+                setPhone('');
+                setLocation('');
+                setAgreeToTerms(false);
+              }}
               className="flex items-center text-purple-600 hover:text-purple-800"
             >
               <ArrowLeft className="h-5 w-5 mr-2" />
@@ -277,8 +335,13 @@ const Login = ({ onLogin }: LoginProps) => {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="First Name *"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  fieldErrors.firstName ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {fieldErrors.firstName && (
+                <p className="text-red-500 text-sm mt-1">{fieldErrors.firstName}</p>
+              )}
             </div>
 
             <div>
@@ -287,18 +350,28 @@ const Login = ({ onLogin }: LoginProps) => {
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 placeholder="Last Name *"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  fieldErrors.lastName ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {fieldErrors.lastName && (
+                <p className="text-red-500 text-sm mt-1">{fieldErrors.lastName}</p>
+              )}
             </div>
 
             <div>
               <Input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value.toLowerCase())}
                 placeholder="Email *"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  fieldErrors.email ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {fieldErrors.email && (
+                <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
+              )}
             </div>
 
             <div>
@@ -327,15 +400,20 @@ const Login = ({ onLogin }: LoginProps) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password *"
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  fieldErrors.password ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                className="absolute right-3 top-3 text-gray-500 hover:text-gray-700 z-10"
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
+              {fieldErrors.password && (
+                <p className="text-red-500 text-sm mt-1">{fieldErrors.password}</p>
+              )}
             </div>
 
             <div className="relative">
@@ -344,16 +422,20 @@ const Login = ({ onLogin }: LoginProps) => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm Password *"
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
+                className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  fieldErrors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                className="absolute right-3 top-3 text-gray-500 hover:text-gray-700 z-10"
               >
                 {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
+              {fieldErrors.confirmPassword && (
+                <p className="text-red-500 text-sm mt-1">{fieldErrors.confirmPassword}</p>
+              )}
             </div>
 
             <div className="flex items-center mt-4">
@@ -375,14 +457,25 @@ const Login = ({ onLogin }: LoginProps) => {
               className="w-full btn-primary mt-6"
               disabled={loading || !agreeToTerms}
             >
-              {loading ? 'Signing up...' : 'SIGN UP'}
+              {loading ? 'Signing up...' : 'Sign up'}
             </Button>
           </form>
 
           <div className="mt-6 text-center">
             <span className="text-sm text-gray-600">Already have an account? </span>
             <button
-              onClick={() => setCurrentView('signin')}
+              onClick={() => {
+                setCurrentView('signin');
+                setFieldErrors({});
+                setFirstName('');
+                setLastName('');
+                setEmail('');
+                setPassword('');
+                setConfirmPassword('');
+                setPhone('');
+                setLocation('');
+                setAgreeToTerms(false);
+              }}
               className="text-sm text-blue-600 hover:text-blue-800 font-medium"
             >
               Sign in

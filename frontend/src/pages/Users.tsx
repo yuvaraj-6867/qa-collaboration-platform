@@ -61,11 +61,24 @@ const Users: React.FC<UsersProps> = ({ addNotification }) => {
       });
 
       if (response.ok) {
-        addNotification?.(`📧 Invitation sent to ${inviteData.email}`);
+        // Add user invitation notification
+        if ((window as any).addNotification) {
+          (window as any).addNotification(
+            'User Invited', 
+            `Invitation sent to ${inviteData.email} for ${getRoleLabel(inviteData.role)} role`, 
+            'success'
+          );
+        }
         setInviteData({ email: '', firstName: '', lastName: '', role: 'qa_engineer' });
         setIsInviteDialogOpen(false);
       } else {
-        addNotification?.(`❌ Failed to send invitation`);
+        if ((window as any).addNotification) {
+          (window as any).addNotification(
+            'Invitation Failed', 
+            `Failed to send invitation to ${inviteData.email}`, 
+            'error'
+          );
+        }
       }
     } catch (error) {
       addNotification?.('❌ Network error: Failed to send invitation email');

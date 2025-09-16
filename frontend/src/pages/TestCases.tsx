@@ -105,6 +105,15 @@ const TestCases: React.FC = () => {
       setTestCases(updatedTestCases);
       localStorage.setItem('testCases', JSON.stringify(updatedTestCases));
 
+      // Add test case creation notification
+      if ((window as any).addNotification) {
+        (window as any).addNotification(
+          'Test Case Created', 
+          `Test case "${mockTestCase.title}" has been created successfully`, 
+          'success'
+        );
+      }
+
       setNewTestCase({
         title: '',
         description: '',

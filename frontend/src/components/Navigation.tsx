@@ -41,7 +41,6 @@ const Navigation = ({ user, onLogout }: NavigationProps) => {
 
   return (
     <>
-      {/* Top Header */}
       <div className="fixed top-0 left-64 right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-end px-6 z-40">
         <div className="flex items-center space-x-3">
           <Notifications />
@@ -49,9 +48,6 @@ const Navigation = ({ user, onLogout }: NavigationProps) => {
             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
               AU
             </div>
-            <span className="text-sm font-medium text-gray-900">
-              Admin User
-            </span>
           </div>
           <Button
             onClick={handleLogout}
@@ -64,17 +60,13 @@ const Navigation = ({ user, onLogout }: NavigationProps) => {
         </div>
       </div>
 
-      {/* Left Sidebar */}
       <div className="fixed top-0 left-0 w-64 h-full bg-white border-r border-gray-200 z-50">
-        {/* Logo */}
         <div className="flex items-center px-6 py-5">
           <Link to="/dashboard" className="flex items-center">
             <img src={logo} alt="QA Platform" className="h-30 w-auto mr-3" />
           </Link>
         </div>
-        {/* Navigation Links */}
         <nav className="mt-2">
-          {/* Overview Section */}
           <div className="px-6 py-2">
             <h3 className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Overview</h3>
           </div>
@@ -115,8 +107,6 @@ const Navigation = ({ user, onLogout }: NavigationProps) => {
               Automation
             </Link>
           )}
-
-          {/* Management Section */}
           <div className="px-6 py-2 mt-4">
             <h3 className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Management</h3>
           </div>
@@ -151,7 +141,6 @@ const Navigation = ({ user, onLogout }: NavigationProps) => {
             Documents
           </Link>
 
-          {/* Analytics & Admin Section */}
           <div className="px-6 py-2 mt-4">
             <h3 className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Analytics & Admin</h3>
           </div>

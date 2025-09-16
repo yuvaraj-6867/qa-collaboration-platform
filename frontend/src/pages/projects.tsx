@@ -116,14 +116,18 @@ const Projects: React.FC<ProjectsProps> = ({ addNotification }) => {
         };
 
         setProjects([createdProject, ...projects]);
+        
+        // Add project creation notification
+        if ((window as any).addNotification) {
+          (window as any).addNotification(
+            'Project Created', 
+            `Project "${createdProject.name}" has been created successfully`, 
+            'success'
+          );
+        }
+        
         setNewProject({ name: '', description: '', status: 'active' });
         setIsCreateDialogOpen(false);
-        
-        if (addNotification) {
-            addNotification(`📁 Project "${newProject.name}" created successfully!`);
-            addNotification(`📊 Status: ${newProject.status.toUpperCase()}`);
-            addNotification(`📅 Ready for test cases and tickets`);
-        }
         try {
             const token = localStorage.getItem('token');
             await fetch('http://localhost:3001/api/v1/projects', {

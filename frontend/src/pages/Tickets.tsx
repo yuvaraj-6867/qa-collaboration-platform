@@ -161,6 +161,15 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
       setTickets(updatedTickets);
       localStorage.setItem('tickets', JSON.stringify(updatedTickets));
 
+      // Add ticket creation notification
+      if ((window as any).addNotification) {
+        (window as any).addNotification(
+          'Ticket Created', 
+          `Ticket "${mockTicket.title}" has been created successfully`, 
+          'success'
+        );
+      }
+
       setIsCreateDialogOpen(false);
       setSelectedLabels([]);
       setSelectedAssignee('');

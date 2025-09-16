@@ -9,8 +9,6 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Search, Plus, Play, FileText, Calendar } from 'lucide-react';
 import { usersApi } from '@/lib/api';
-
-
 interface AutomationProps {
   addNotification?: (message: string) => void;
 }
@@ -147,6 +145,14 @@ const Automation: React.FC<AutomationProps> = ({ addNotification }) => {
     const updatedScripts = [...scripts, script];
     setScripts(updatedScripts);
     localStorage.setItem('automationScripts', JSON.stringify(updatedScripts));
+
+    if ((window as any).addNotification) {
+      (window as any).addNotification(
+        'Automation Script Created', 
+        `Script "${script.scriptName}" has been created successfully`, 
+        'success'
+      );
+    }
 
     setIsCreateDialogOpen(false);
     addNotification?.(`🤖 Automation script "${newScript.scriptName}" created successfully!`);

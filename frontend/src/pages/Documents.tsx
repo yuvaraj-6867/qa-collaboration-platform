@@ -202,6 +202,15 @@ const Documents = () => {
       setDocuments(updatedDocuments);
       localStorage.setItem('documents', JSON.stringify(updatedDocuments));
 
+      // Add document upload notification
+      if ((window as any).addNotification) {
+        (window as any).addNotification(
+          'Document Uploaded', 
+          `Document "${document.title}" has been uploaded successfully`, 
+          'success'
+        );
+      }
+
       setIsUploadDialogOpen(false);
       setUploadProgress(0);
       setNewDocument({
