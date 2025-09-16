@@ -31,11 +31,26 @@ const Login = ({ onLogin }: LoginProps) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [currentView, setCurrentView] = useState<'welcome' | 'signin' | 'signup'>('welcome');
+  const [fieldErrors, setFieldErrors] = useState<{email?: string; password?: string}>({});
   const { showError, showSuccess } = useGlobalSnackbar();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFieldErrors({});
     setLoading(true);
+
+    // Basic validation
+    const errors: {email?: string; password?: string} = {};
+    if (!email) errors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(email)) errors.email = 'Invalid email format';
+    if (!password) errors.password = 'Password is required';
+    else if (password.length < 6) errors.password = 'Password must be at least 6 characters';
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await authApi.login(email, password);
@@ -50,6 +65,7 @@ const Login = ({ onLogin }: LoginProps) => {
       const errorMessage = getErrorMessage(err);
       console.log('Error message:', errorMessage);
       showError(errorMessage);
+      setFieldErrors({ email: 'Invalid email or password', password: 'Invalid email or password' });
       setPassword('');
     } finally {
       setLoading(false);
@@ -151,11 +167,16 @@ const Login = ({ onLogin }: LoginProps) => {
                 <Input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value.toLowerCase())}
                   placeholder="Email"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    fieldErrors.email ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   required
                 />
+                {fieldErrors.email && (
+                  <p className="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
+                )}
               </div>
 
               <div className="relative">
@@ -164,7 +185,9 @@ const Login = ({ onLogin }: LoginProps) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
-                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    fieldErrors.password ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   required
                 />
                 <button
@@ -174,6 +197,9 @@ const Login = ({ onLogin }: LoginProps) => {
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
+                {fieldErrors.password && (
+                  <p className="text-red-500 text-sm mt-1">{fieldErrors.password}</p>
+                )}
               </div>
 
               <div className="flex items-center justify-between">
