@@ -5,6 +5,8 @@ class Api::V1::UserInvitationsController < ApplicationController
     
     invitation = UserInvitation.create!(
       email: params[:email],
+      first_name: params[:first_name],
+      last_name: params[:last_name],
       role: params[:role],
       invited_by: current_user
     )
