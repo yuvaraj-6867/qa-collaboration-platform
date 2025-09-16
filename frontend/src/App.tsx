@@ -18,17 +18,17 @@ import './utils/authDebug';
 import './App.css';
 
 function App() {
-  const isAuthenticated = localStorage.getItem('token');
+  const isAuthenticated = !!localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/login';
+    window.location.reload();
   };
 
   const handleLogin = (_token: string, _user: any) => {
-    window.location.href = '/dashboard';
+    window.location.reload();
   };
 
   return (

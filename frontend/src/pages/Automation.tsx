@@ -270,7 +270,6 @@ const Automation: React.FC<AutomationProps> = ({ addNotification }) => {
                 </div>
               </div>
 
-              {/* Script Type & Metadata */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">🔹 2. Script Type & Metadata</h3>
                 <div className="grid grid-cols-3 gap-4">
@@ -333,7 +332,6 @@ const Automation: React.FC<AutomationProps> = ({ addNotification }) => {
                 </div>
               </div>
 
-              {/* Test Case Linkage */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">🔹 3. Test Case Linkage</h3>
                 <div>
@@ -363,7 +361,6 @@ const Automation: React.FC<AutomationProps> = ({ addNotification }) => {
                 </div>
               </div>
 
-              {/* Execution Details */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">🔹 4. Execution Details</h3>
                 <div className="grid grid-cols-2 gap-4">
@@ -433,7 +430,6 @@ const Automation: React.FC<AutomationProps> = ({ addNotification }) => {
                 </div>
               </div>
 
-              {/* Script File & Repository */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">🔹 5. Script File & Repository</h3>
                 <div>
@@ -464,7 +460,6 @@ const Automation: React.FC<AutomationProps> = ({ addNotification }) => {
                 </div>
               </div>
 
-              {/* Execution Controls */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">🔹 6. Execution Controls</h3>
                 <div className="grid grid-cols-3 gap-4">
@@ -497,7 +492,6 @@ const Automation: React.FC<AutomationProps> = ({ addNotification }) => {
                 </div>
               </div>
 
-              {/* Ownership & Status */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">🔹 7. Ownership & Status</h3>
                 <div className="grid grid-cols-3 gap-4">
