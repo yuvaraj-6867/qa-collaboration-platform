@@ -2,7 +2,7 @@ services:
   - type: web
     name: qa-platform-frontend
     env: static
-    buildCommand: npm install --prefix frontend && npm run build --prefix frontend
+    buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
     routes:
       - type: rewrite
