@@ -50,6 +50,7 @@ const Login = ({ onLogin }: LoginProps) => {
       const errorMessage = getErrorMessage(err);
       console.log('Error message:', errorMessage);
       showError(errorMessage);
+      setPassword('');
     } finally {
       setLoading(false);
     }
