@@ -10,6 +10,12 @@ const getAuthHeaders = () => {
 
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
+    if (response.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+      throw new Error('Session expired. Please login again.');
+    }
     const error = await response.json().catch(() => ({ message: 'Network error' }));
     throw new Error(error.message || `HTTP ${response.status}`);
   }
