@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { FileUpload } from './ui/file-upload';
 import { MediaViewer } from './MediaViewer';
-import { Button } from './ui/button';
 
 interface Attachment {
   id: number;
@@ -20,8 +19,8 @@ interface AttachmentUploadProps {
 }
 
 export const AttachmentUpload: React.FC<AttachmentUploadProps> = ({
-  testCaseId,
-  documentId,
+  testCaseId: _testCaseId,
+  documentId: _documentId,
   attachments,
   onAttachmentsChange,
   apiEndpoint

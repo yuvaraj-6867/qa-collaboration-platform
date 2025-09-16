@@ -27,7 +27,7 @@ function App() {
     window.location.href = '/login';
   };
 
-  const handleLogin = (token: string, user: any) => {
+  const handleLogin = (_token: string, _user: any) => {
     window.location.href = '/dashboard';
   };
 

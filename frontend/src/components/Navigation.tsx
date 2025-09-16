@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import { BarChart3, FileText, Ticket, Bot, File, TrendingUp, Users, Settings, Bell } from 'lucide-react';
+import { BarChart3, FileText, Ticket, Bot, File, TrendingUp, Users, Settings } from 'lucide-react';
 import Notifications from './Notifications';
 
 interface User {
@@ -20,7 +20,7 @@ interface NavigationProps {
 const Navigation = ({ user, onLogout }: NavigationProps) => {
   const [currentUser, setCurrentUser] = useState(user);
 
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
+
   const location = useLocation();
   const navigate = useNavigate();
 
