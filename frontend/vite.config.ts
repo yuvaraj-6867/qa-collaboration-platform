@@ -4,6 +4,7 @@ import { resolve } from 'path'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
+  base: '/qa-platform/',
   plugins: [react()],
   resolve: {
     alias: {
