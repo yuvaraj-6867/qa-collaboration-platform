@@ -25,40 +25,33 @@ const Automation: React.FC<AutomationProps> = ({ addNotification }) => {
   const [selectedTestCases, setSelectedTestCases] = useState<string[]>([]);
   const [selectedBrowsers, setSelectedBrowsers] = useState<string[]>([]);
   const [newScript, setNewScript] = useState({
-    // Basic Details
     scriptName: '',
     description: '',
     module: '',
     scriptId: '',
 
-    // Script Type & Metadata
     scriptType: 'UI',
     framework: 'Playwright',
     language: 'TypeScript',
     tags: [] as string[],
 
-    // Test Case Linkage
     linkedTestCases: [] as string[],
     requirementId: '',
 
-    // Execution Details
     environment: 'QA',
     browsers: [] as string[],
     dataSource: 'Static',
     preConditions: '',
     postConditions: '',
 
-    // Script File & Repository
     scriptPath: '',
     repositoryUrl: '',
     branchName: 'main',
 
-    // Execution Controls
     schedule: '',
     retryCount: 2,
     timeout: 120,
 
-    // Ownership & Status
     author: '',
     reviewer: '',
     status: 'Draft'
@@ -102,7 +95,6 @@ const Automation: React.FC<AutomationProps> = ({ addNotification }) => {
 
 
   const fetchTestCases = async () => {
-    // Mock test cases - replace with actual API call
     const mockTestCases = [
       { id: 'TC-Login-01', title: 'Valid Login Test' },
       { id: 'TC-Login-02', title: 'Invalid Login Test' },
@@ -156,7 +148,6 @@ const Automation: React.FC<AutomationProps> = ({ addNotification }) => {
     setScripts(updatedScripts);
     localStorage.setItem('automationScripts', JSON.stringify(updatedScripts));
 
-    // Reset form
     setIsCreateDialogOpen(false);
     addNotification?.(`🤖 Automation script "${newScript.scriptName}" created successfully!`);
     addNotification?.(`🔧 Framework: ${newScript.framework} (${newScript.language})`);
@@ -217,7 +208,7 @@ const Automation: React.FC<AutomationProps> = ({ addNotification }) => {
   return (
     <div className="p-6 space-y-6 bg-white dark:bg-gray-900 min-h-screen">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">🤖 Automation Scripts</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white"> Automation Scripts</h1>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-blue-600 hover:bg-blue-700 text-white">

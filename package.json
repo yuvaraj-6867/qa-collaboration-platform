@@ -2,7 +2,7 @@
   "name": "qa-collaboration-platform",
   "private": true,
   "scripts": {
-    "build": "cd frontend && npm install && npm run build",
+    "build": "cd frontend && npm install && npm run build && cp -r dist ../",
     "install": "cd frontend && npm install"
   },
   "engines": {
