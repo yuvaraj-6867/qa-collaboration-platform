@@ -2,6 +2,7 @@ require 'securerandom'
 
 class UserInvitation < ApplicationRecord
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :role, presence: true
   validates :status, inclusion: { in: %w[pending accepted declined] }
   
   belongs_to :invited_by, class_name: 'User'

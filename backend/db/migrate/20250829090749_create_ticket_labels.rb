@@ -1,4 +1,4 @@
-class CreateTicketLabels < ActiveRecord::Migration[8.0]
+class CreateTicketLabels < ActiveRecord::Migration[7.1]
   def change
     create_table :ticket_labels do |t|
       t.references :ticket, null: false, foreign_key: true

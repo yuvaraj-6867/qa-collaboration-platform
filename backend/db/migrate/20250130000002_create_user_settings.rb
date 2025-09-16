@@ -1,4 +1,4 @@
-class CreateUserSettings < ActiveRecord::Migration[8.0]
+class CreateUserSettings < ActiveRecord::Migration[7.1]
   def change
     create_table :user_settings do |t|
       t.references :user, null: false, foreign_key: true
@@ -11,7 +11,5 @@ class CreateUserSettings < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-
-    add_index :user_settings, :user_id, unique: true
   end
 end

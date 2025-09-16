@@ -12,3 +12,4 @@ gem "jbuilder"
 gem "jwt"
 gem "bcrypt"
 gem "psych", "~> 4.0"
+gem "dotenv-rails", groups: [:development, :test]

@@ -1,4 +1,4 @@
-class CreateTestRuns < ActiveRecord::Migration[8.0]
+class CreateTestRuns < ActiveRecord::Migration[7.1]
   def change
     create_table :test_runs do |t|
       t.references :test_case, null: false, foreign_key: true

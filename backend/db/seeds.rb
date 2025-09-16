@@ -19,8 +19,3 @@ puts "Admin: yuvaraj6867@gmail.com"
 puts "Password: yuva123"
 puts "Total users: #{User.count}"
 
-
-# rails db:drop
-# rails db:create
-# rails db:migrate
-# rails db:seeds

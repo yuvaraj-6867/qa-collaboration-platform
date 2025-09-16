@@ -53,42 +53,9 @@ const Projects: React.FC<ProjectsProps> = ({ addNotification }) => {
             if (response.ok) {
                 const data = await response.json();
                 setProjects(data);
-            } else {
-                const sampleProjects = [
-                    {
-                        id: 1,
-                        name: 'QA Platform Testing',
-                        description: 'Main testing project for QA platform',
-                        status: 'active' as const,
-                        created_by: 'Admin User',
-                        created_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString()
-                    },
-                    {
-                        id: 2,
-                        name: 'Mobile App Testing',
-                        description: 'Testing project for mobile application features',
-                        status: 'active' as const,
-                        created_by: 'Admin User',
-                        created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-                        updated_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-                    }
-                ];
-                setProjects(sampleProjects);
             }
         } catch (error) {
-            const sampleProjects = [
-                {
-                    id: 1,
-                    name: 'QA Platform Testing',
-                    description: 'Main testing project for QA platform',
-                    status: 'active' as const,
-                    created_by: 'Admin User',
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString()
-                }
-            ];
-            setProjects(sampleProjects);
+            console.error('Failed to fetch projects:', error);
         } finally {
             setLoading(false);
         }
@@ -116,9 +83,7 @@ const Projects: React.FC<ProjectsProps> = ({ addNotification }) => {
         };
 
         setProjects([createdProject, ...projects]);
-        
-        // Add project creation notification
-        if ((window as any).addNotification) {
+                if ((window as any).addNotification) {
           (window as any).addNotification(
             'Project Created', 
             `Project "${createdProject.name}" has been created successfully`, 

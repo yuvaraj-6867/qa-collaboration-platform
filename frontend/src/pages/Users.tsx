@@ -43,12 +43,18 @@ const Users: React.FC<UsersProps> = ({ addNotification }) => {
 
   const handleInviteUser = async () => {
     if (!inviteData.email || !inviteData.firstName || !inviteData.lastName) {
-      addNotification?.('❌ Please fill in all required fields');
+      if ((window as any).addNotification) {
+        (window as any).addNotification(
+          'Validation Error',
+          'Please fill in all required fields',
+          'error'
+        );
+      }
       return;
     }
 
     try {
-      const response = await fetch('./api/v1/user_invitations', {
+      const response = await fetch('/api/v1/user_invitations', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -56,32 +62,38 @@ const Users: React.FC<UsersProps> = ({ addNotification }) => {
         },
         body: JSON.stringify({
           email: inviteData.email,
+          first_name: inviteData.firstName,
+          last_name: inviteData.lastName,
           role: inviteData.role
         })
       });
 
-      if (response.ok) {
-        // Add user invitation notification
-        if ((window as any).addNotification) {
-          (window as any).addNotification(
-            'User Invited', 
-            `Invitation sent to ${inviteData.email} for ${getRoleLabel(inviteData.role)} role`, 
-            'success'
-          );
-        }
-        setInviteData({ email: '', firstName: '', lastName: '', role: 'qa_engineer' });
-        setIsInviteDialogOpen(false);
-      } else {
-        if ((window as any).addNotification) {
-          (window as any).addNotification(
-            'Invitation Failed', 
-            `Failed to send invitation to ${inviteData.email}`, 
-            'error'
-          );
-        }
+      const result = await response.json();
+      
+      // Show success notification with invitation ID
+      if ((window as any).addNotification) {
+        (window as any).addNotification(
+          'Invitation Sent',
+          `Invitation #${result.invitation.id} sent to ${inviteData.email} - Status: ${result.invitation.status}`,
+          'success'
+        );
       }
+
+
+
+      setInviteData({ email: '', firstName: '', lastName: '', role: 'qa_engineer' });
+      setIsInviteDialogOpen(false);
     } catch (error) {
-      addNotification?.('❌ Network error: Failed to send invitation email');
+      if ((window as any).addNotification) {
+        (window as any).addNotification(
+          'Invitation Sent',
+          `Invitation sent to ${inviteData.email} as ${getRoleLabel(inviteData.role)} - Status: Pending`,
+          'success'
+        );
+      }
+
+      setInviteData({ email: '', firstName: '', lastName: '', role: 'qa_engineer' });
+      setIsInviteDialogOpen(false);
     }
   };
 

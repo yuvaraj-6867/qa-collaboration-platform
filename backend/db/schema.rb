@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_13_193503) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_16_164404) do
   create_table "automation_scripts", force: :cascade do |t|
     t.string "name"
     t.text "description"
@@ -60,6 +60,22 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_13_193503) do
     t.index ["parent_id"], name: "index_folders_on_parent_id"
   end
 
+  create_table "invitations", force: :cascade do |t|
+    t.string "email", null: false
+    t.string "first_name", null: false
+    t.string "last_name", null: false
+    t.string "role", null: false
+    t.string "token", null: false
+    t.integer "status", default: 0
+    t.integer "invited_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_invitations_on_email"
+    t.index ["invited_by_id"], name: "index_invitations_on_invited_by_id"
+    t.index ["status"], name: "index_invitations_on_status"
+    t.index ["token"], name: "index_invitations_on_token", unique: true
+  end
+
   create_table "labels", force: :cascade do |t|
     t.string "name"
     t.string "color"
@@ -83,14 +99,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_13_193503) do
   end
 
   create_table "projects", force: :cascade do |t|
-    t.string "name", null: false
+    t.string "name"
     t.text "description"
-    t.string "status", default: "active"
-    t.string "created_by"
+    t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_projects_on_name", unique: true
-    t.index ["status"], name: "index_projects_on_status"
   end
 
   create_table "test_case_attachments", force: :cascade do |t|
@@ -161,9 +174,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_13_193503) do
     t.integer "created_by_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "estimate", precision: 5, scale: 2
     t.integer "test_case_id"
     t.integer "test_run_id"
-    t.decimal "estimate", precision: 5, scale: 2
     t.index ["assigned_user_id"], name: "index_tickets_on_assigned_user_id"
     t.index ["created_by_id"], name: "index_tickets_on_created_by_id"
     t.index ["test_case_id"], name: "index_tickets_on_test_case_id"
@@ -182,6 +195,19 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_13_193503) do
     t.index ["invited_by_id"], name: "index_user_invitations_on_invited_by_id"
   end
 
+  create_table "user_settings", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "theme", default: "system"
+    t.string "language", default: "en"
+    t.string "timezone", default: "UTC"
+    t.boolean "notifications_enabled", default: true
+    t.boolean "email_notifications", default: true
+    t.boolean "compact_view", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_user_settings_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email"
     t.string "password_digest"
@@ -189,11 +215,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_13_193503) do
     t.string "last_name"
     t.string "role"
     t.string "status"
+    t.string "phone"
+    t.string "location"
+    t.date "joined_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "location"
-    t.string "phone"
-    t.date "joined_date"
   end
 
   add_foreign_key "automation_scripts", "test_cases"
@@ -202,6 +228,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_13_193503) do
   add_foreign_key "documents", "folders"
   add_foreign_key "documents", "users"
   add_foreign_key "folders", "folders", column: "parent_id"
+  add_foreign_key "invitations", "users", column: "invited_by_id"
   add_foreign_key "notifications", "users"
   add_foreign_key "test_case_attachments", "test_cases"
   add_foreign_key "test_cases", "folders"
@@ -217,4 +244,5 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_13_193503) do
   add_foreign_key "tickets", "users", column: "assigned_user_id"
   add_foreign_key "tickets", "users", column: "created_by_id"
   add_foreign_key "user_invitations", "users", column: "invited_by_id"
+  add_foreign_key "user_settings", "users"
 end

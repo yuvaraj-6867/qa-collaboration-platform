@@ -1,4 +1,4 @@
-class AddAttachmentsToTestCases < ActiveRecord::Migration[8.0]
+class AddAttachmentsToTestCases < ActiveRecord::Migration[7.1]
   def change
     create_table :test_case_attachments do |t|
       t.references :test_case, null: false, foreign_key: true
