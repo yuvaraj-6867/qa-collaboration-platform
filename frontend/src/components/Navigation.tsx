@@ -68,7 +68,10 @@ const Navigation = ({ user, onLogout }: NavigationProps) => {
       <div className="fixed top-0 left-0 w-64 h-full bg-white border-r border-gray-200 z-50">
         {/* Logo */}
         <div className="flex items-center px-6 py-5">
-          <img src={logo} alt="QA Platform" className="h-30 w-auto mr-3" />        </div>
+          <Link to="/dashboard" className="flex items-center">
+            <img src={logo} alt="QA Platform" className="h-30 w-auto mr-3" />
+          </Link>
+        </div>
         {/* Navigation Links */}
         <nav className="mt-2">
           {/* Overview Section */}
