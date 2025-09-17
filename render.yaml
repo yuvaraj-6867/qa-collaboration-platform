@@ -2,9 +2,8 @@ services:
   - type: web
     name: qa-platform-backend
     env: ruby
-    rootDir: backend
-    buildCommand: bundle install && rails db:migrate
-    startCommand: bundle exec rails server -p $PORT -e production
+    buildCommand: bundle install && cd backend && rails db:migrate
+    startCommand: cd backend && bundle exec rails server -p $PORT -e production
     envVars:
       - key: RAILS_ENV
         value: production
