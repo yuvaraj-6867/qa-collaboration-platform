@@ -45,7 +45,7 @@ const Projects: React.FC = () => {
                     'Content-Type': 'application/json'
                 }
             });
-            
+
             if (response.ok) {
                 const data = await response.json();
                 setProjects(data);
@@ -79,14 +79,14 @@ const Projects: React.FC = () => {
         };
 
         setProjects([createdProject, ...projects]);
-                if ((window as any).addNotification) {
-          (window as any).addNotification(
-            'Project Created', 
-            `Project "${createdProject.name}" has been created successfully`, 
-            'success'
-          );
+        if ((window as any).addNotification) {
+            (window as any).addNotification(
+                'Project Created',
+                `Project "${createdProject.name}" has been created successfully`,
+                'success'
+            );
         }
-        
+
         setNewProject({ name: '', description: '', status: 'active' });
         setIsCreateDialogOpen(false);
         try {
@@ -128,7 +128,6 @@ const Projects: React.FC = () => {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Projects</h1>
-                    <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your project portfolio</p>
                 </div>
 
                 <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -250,8 +249,8 @@ const Projects: React.FC = () => {
                                 </CardContent>
                             </Card>
                         ))
-                    }           
-                 </div>
+                    }
+                </div>
             )}
         </div>
     );

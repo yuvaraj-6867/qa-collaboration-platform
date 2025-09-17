@@ -104,8 +104,6 @@ const TestCases: React.FC = () => {
       const updatedTestCases = [...testCases, mockTestCase];
       setTestCases(updatedTestCases);
       localStorage.setItem('testCases', JSON.stringify(updatedTestCases));
-
-      // Add test case creation notification
       if ((window as any).addNotification) {
         (window as any).addNotification(
           'Test Case Created', 
@@ -196,7 +194,6 @@ const TestCases: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Test Cases</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your test case library</p>
         </div>
 
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>

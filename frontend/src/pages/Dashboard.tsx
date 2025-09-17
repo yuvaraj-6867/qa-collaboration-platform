@@ -61,12 +61,7 @@ const Dashboard = () => {
     <div className="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">QA Dashboard</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">Real-time quality assurance metrics</p>
       </div>
-
-
-
-      {/* Existing metrics cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -129,7 +124,6 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      {/* Existing charts section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm">
           <CardHeader>

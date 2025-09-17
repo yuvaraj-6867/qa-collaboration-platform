@@ -164,8 +164,8 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
       // Add ticket creation notification
       if ((window as any).addNotification) {
         (window as any).addNotification(
-          'Ticket Created', 
-          `Ticket "${mockTicket.title}" has been created successfully`, 
+          'Ticket Created',
+          `Ticket "${mockTicket.title}" has been created successfully`,
           'success'
         );
       }
@@ -217,7 +217,7 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
         const updatedViewingTicket = updatedTickets.find(t => t.id === ticketId);
         setViewingTicket(updatedViewingTicket);
       }
-      
+
       addNotification?.(` Ticket moved from "${tickets.find(t => t.id === ticketId)?.status}" to "${newStatus}"`);
       if (newStatus === 'Done') {
         addNotification?.(` Ticket completed successfully!`);
@@ -251,7 +251,7 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
       setViewingTicket(updatedViewingTicket);
     }
     setShowViewAssigneeDropdown(false);
-    
+
     if (newAssignee) {
       addNotification?.(` Ticket assigned to: ${newAssignee}`);
     } else {
@@ -344,7 +344,7 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
     const updatedViewingTicket = updatedTickets.find(t => t.id === viewingTicket.id);
     setViewingTicket(updatedViewingTicket);
     setComment('');
-    
+
     addNotification?.(`💬 Comment added to ticket`);
   };
 
@@ -445,7 +445,7 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
       // Keyboard controls
       const handleKeydown = (e: KeyboardEvent) => {
         e.stopPropagation();
-        switch(e.key) {
+        switch (e.key) {
           case 'Escape':
             videoCleanup();
             break;
@@ -600,10 +600,6 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Project Board</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Track and manage your issues • 
-            <span className="text-sm">Drag tickets to move or Ctrl+click to advance status</span>
-          </p>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
@@ -960,7 +956,7 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
 
             return (
               <div key={column.id} className="flex flex-col">
-                <div 
+                <div
                   className={`${column.color} rounded-t-lg p-3 border-b border-gray-200 dark:border-gray-600`}
                   onDragOver={(e) => {
                     e.preventDefault();
@@ -991,7 +987,7 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
                   </div>
                 </div>
 
-                <div 
+                <div
                   className="flex-1 bg-white dark:bg-gray-800 rounded-b-lg border-l border-r border-b border-gray-200 dark:border-gray-600 p-2 overflow-y-auto"
                   onDragOver={(e) => {
                     e.preventDefault();
@@ -1131,9 +1127,9 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
         <div className="space-y-6">
           {columns.map((column) => {
             const columnTickets = filteredTickets.filter(ticket => ticket.status === column.id);
-            
+
             if (columnTickets.length === 0) return null;
-            
+
             return (
               <div key={column.id} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
                 <div className={`${column.color} p-4 rounded-t-lg border-b border-gray-200 dark:border-gray-600`}>
@@ -1144,7 +1140,7 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
                     </Badge>
                   </div>
                 </div>
-                
+
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead className="bg-gray-50 dark:bg-gray-700">
@@ -1161,8 +1157,8 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
                     </thead>
                     <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
                       {columnTickets.map((ticket) => (
-                        <tr 
-                          key={ticket.id} 
+                        <tr
+                          key={ticket.id}
                           className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
                           onClick={() => {
                             setIsLoadingTicket(true);
