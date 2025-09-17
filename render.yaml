@@ -1,10 +1,31 @@
 services:
   - type: web
+    name: qa-platform-backend
+    env: ruby
+    rootDir: backend
+    buildCommand: bundle install && rails db:migrate
+    startCommand: bundle exec rails server -p $PORT -e production
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_SERVE_STATIC_FILES
+        value: true
+      - key: RAILS_LOG_TO_STDOUT
+        value: true
+      - key: SECRET_KEY_BASE
+        generateValue: true
+
+  - type: web
     name: qa-platform-frontend
     env: static
-    buildCommand: npm run build
-    staticPublishPath: dist
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
+
+databases:
+  - name: qa-platform-db
+    databaseName: qa_platform_production
+    user: qa_platform
