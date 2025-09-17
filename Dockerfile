@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-COPY backend/Gemfile backend/Gemfile.lock* ./
+COPY backend/Gemfile* ./
 RUN bundle install
 
 COPY backend/ ./
