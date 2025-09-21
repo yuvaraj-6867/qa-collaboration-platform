@@ -32,7 +32,7 @@ module QaCollaborationPlatform
     # CORS configuration
     config.middleware.insert_before 0, Rack::Cors do
       allow do
-        origins 'http://localhost:5000'
+        origins 'http://localhost:5000', 'https://qa-platform-fronend.onrender.com'
         resource '*',
           headers: :any,
           methods: [:get, :post, :put, :patch, :delete, :options, :head],

@@ -1,5 +1,5 @@
 class Api::V1::DashboardController < ApplicationController
-    skip_before_action :check_authorization
+  skip_before_action :check_authorization
   def metrics
     render json: {
       test_metrics: test_metrics,
