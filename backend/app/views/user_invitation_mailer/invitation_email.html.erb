@@ -5,6 +5,6 @@
 <p><%= @invited_by.full_name %> has invited you to join the QA Platform as a <%= @invitation.role.humanize %>.</p>
 
 <p>Click the link below to accept your invitation:</p>
-<p><a href="http://localhost:3000/invite/<%= @invitation.token %>">Accept Invitation</a></p>
+<p><a href="<%= ENV['FRONTEND_URL'] || 'http://localhost:3000' %>/invite/<%= @invitation.token %>">Accept Invitation</a></p>
 
 <p>Thanks!</p>

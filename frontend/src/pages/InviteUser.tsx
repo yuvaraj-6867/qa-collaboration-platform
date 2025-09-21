@@ -11,8 +11,6 @@ import { UserPlus, Mail, Clock, CheckCircle, XCircle, RefreshCw } from 'lucide-r
 interface Invitation {
   id: number;
   email: string;
-  first_name: string;
-  last_name: string;
   role: string;
   status: string;
   created_at: string;
@@ -29,8 +27,6 @@ const InviteUser = () => {
   const [loading, setLoading] = useState(false);
   const [newInvitation, setNewInvitation] = useState({
     email: '',
-    first_name: '',
-    last_name: '',
     role: 'qa_engineer'
   });
 
@@ -38,7 +34,6 @@ const InviteUser = () => {
     { value: 'qa_engineer', label: 'QA Engineer' },
     { value: 'qa_manager', label: 'QA Manager' },
     { value: 'developer', label: 'Developer' },
-    { value: 'compliance_officer', label: 'Compliance Officer' }
   ];
 
   useEffect(() => {
@@ -84,8 +79,6 @@ const InviteUser = () => {
         setInvitations([data.invitation, ...invitations]);
         setNewInvitation({
           email: '',
-          first_name: '',
-          last_name: '',
           role: 'qa_engineer'
         });
         setIsDialogOpen(false);
@@ -196,27 +189,6 @@ const InviteUser = () => {
               <DialogTitle>Invite New Team Member</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleInviteUser} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>First Name</Label>
-                  <Input
-                    value={newInvitation.first_name}
-                    onChange={(e) => setNewInvitation({ ...newInvitation, first_name: e.target.value })}
-                    placeholder="John"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label>Last Name</Label>
-                  <Input
-                    value={newInvitation.last_name}
-                    onChange={(e) => setNewInvitation({ ...newInvitation, last_name: e.target.value })}
-                    placeholder="Doe"
-                    required
-                  />
-                </div>
-              </div>
-
               <div>
                 <Label>Email Address</Label>
                 <Input
@@ -274,13 +246,12 @@ const InviteUser = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">
-                      {invitation.first_name[0]}{invitation.last_name[0]}
+                      {invitation.email[0].toUpperCase()}
                     </div>
                     <div>
                       <CardTitle className="text-lg">
-                        {invitation.first_name} {invitation.last_name}
+                        {invitation.email}
                       </CardTitle>
-                      <p className="text-sm text-gray-600">{invitation.email}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">

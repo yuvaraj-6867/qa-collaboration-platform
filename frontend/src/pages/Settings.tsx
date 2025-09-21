@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,6 +34,7 @@ const Switch: React.FC<{
 );
 
 const Settings: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('profile');
   const [theme, setTheme] = useState('light');
   const [notifications, setNotifications] = useState({
@@ -50,6 +52,13 @@ const Settings: React.FC = () => {
   const [passwordMessage, setPasswordMessage] = useState({ type: '', text: '' });
 
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['profile', 'notifications', 'security', 'appearance', 'system'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -319,7 +328,7 @@ const Settings: React.FC = () => {
         {activeTab === 'appearance' && (
           <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardHeader>
-              <CardTitle className="text-gray-900 dark:text-white"> Appearance</CardTitle>
+              <CardTitle className="text-gray-900 dark:text-white">Appearance</CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400">
                 Customize the look and feel of your workspace
               </CardDescription>
@@ -460,6 +469,3 @@ const Settings: React.FC = () => {
 };
 
 export default Settings;
-
-
-

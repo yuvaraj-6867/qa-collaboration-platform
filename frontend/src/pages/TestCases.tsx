@@ -8,14 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { TestCase } from '@/types';
-import { Search, Filter, Plus, XCircle, FolderOpen, Folder } from 'lucide-react';
+import { Search, Filter, Plus, XCircle } from 'lucide-react';
 
 const TestCases: React.FC = () => {
   const [testCases, setTestCases] = useState<TestCase[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFolder, setSelectedFolder] = useState('All');
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [viewingTestCase, setViewingTestCase] = useState<TestCase | null>(null);
@@ -36,7 +36,7 @@ const TestCases: React.FC = () => {
     status: 'draft' as TestCase['status'],
     assigned_user: '',
     created_by: user ? `${user.first_name} ${user.last_name}` : 'Unknown User',
-    folder: 'General',
+
     automated: false,
     project_id: ''
   });
@@ -123,7 +123,7 @@ const TestCases: React.FC = () => {
         status: 'draft' as TestCase['status'],
         assigned_user: '',
         created_by: user ? `${user.first_name} ${user.last_name}` : '',
-        folder: '',
+
         automated: false,
         project_id: ''
       });
@@ -160,26 +160,11 @@ const TestCases: React.FC = () => {
     }
   };
 
-  const folders = ['All', 'General', 'Test Cases', 'Requirements', 'Reports', 'Automation'];
-  
   const filteredTestCases = testCases.filter((testCase: any) => {
     const matchesSearch = testCase.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       testCase.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFolder = selectedFolder === 'All' || testCase.folder === selectedFolder;
-    return matchesSearch && matchesFolder;
+    return matchesSearch;
   });
-
-  const getTestCasesByFolder = () => {
-    const grouped = testCases.reduce((acc: any, testCase: any) => {
-      const folder = testCase.folder || 'General';
-      if (!acc[folder]) acc[folder] = [];
-      acc[folder].push(testCase);
-      return acc;
-    }, {});
-    return grouped;
-  };
-
-  const testCasesByFolder = getTestCasesByFolder();
 
   if (loading) {
     return (
@@ -237,37 +222,20 @@ const TestCases: React.FC = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-gray-900 dark:text-white">Project</Label>
-                  <Select value={newTestCase.project_id} onValueChange={(value) => setNewTestCase({ ...newTestCase, project_id: value })}>
-                    <SelectTrigger className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                      <SelectValue placeholder="Select a project" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {projects.map((project) => (
-                        <SelectItem key={project.id} value={project.id.toString()}>
-                          {project.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="text-gray-900 dark:text-white">Folder</Label>
-                  <Select value={newTestCase.folder} onValueChange={(value) => setNewTestCase({ ...newTestCase, folder: value })}>
-                    <SelectTrigger className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                      <SelectValue placeholder="Select folder" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {folders.filter(f => f !== 'All').map((folder) => (
-                        <SelectItem key={folder} value={folder}>
-                          {folder}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div>
+                <Label className="text-gray-900 dark:text-white">Project</Label>
+                <Select value={newTestCase.project_id} onValueChange={(value) => setNewTestCase({ ...newTestCase, project_id: value })}>
+                  <SelectTrigger className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <SelectValue placeholder="Select a project" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projects.map((project) => (
+                      <SelectItem key={project.id} value={project.id.toString()}>
+                        {project.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -390,22 +358,7 @@ const TestCases: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Select value={selectedFolder} onValueChange={setSelectedFolder}>
-          <SelectTrigger className="w-48">
-            <FolderOpen className="h-4 w-4 mr-2" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {folders.map((folder) => (
-              <SelectItem key={folder} value={folder}>
-                <div className="flex items-center">
-                  <Folder className="h-4 w-4 mr-2" />
-                  {folder} {folder !== 'All' && testCasesByFolder[folder] ? `(${testCasesByFolder[folder].length})` : ''}
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+
         <Button variant="outline">
           <Filter className="h-4 w-4 mr-2" />
           Filter
@@ -451,11 +404,7 @@ const TestCases: React.FC = () => {
                   <div>
                     <span className="font-medium">Created by:</span> {testCase.created_by || 'Unknown'}
                   </div>
-                  {testCase.folder && (
-                    <div>
-                      <span className="font-medium">Folder:</span> {testCase.folder}
-                    </div>
-                  )}
+
                 </div>
                 <div className="flex justify-end mt-4 space-x-2">
                   <Button
@@ -476,7 +425,7 @@ const TestCases: React.FC = () => {
       </div>
 
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 z-50">
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-white">Test Case Details</DialogTitle>
           </DialogHeader>
@@ -523,11 +472,17 @@ const TestCases: React.FC = () => {
               <div>
                 <Label className="font-semibold text-gray-900 dark:text-white">Test Steps</Label>
                 <div className="mt-1 space-y-2">
-                  {viewingTestCase.steps?.map((step: string, index: number) => (
-                    <div key={index} className="p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded text-gray-900 dark:text-white">
-                      <span className="font-medium">Step {index + 1}:</span> {step}
+                  {Array.isArray(viewingTestCase.steps) ? (
+                    viewingTestCase.steps.map((step: string, index: number) => (
+                      <div key={index} className="p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded text-gray-900 dark:text-white">
+                        <span className="font-medium">Step {index + 1}:</span> {step}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded text-gray-900 dark:text-white">
+                      {viewingTestCase.steps || 'No steps defined'}
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
 

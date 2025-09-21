@@ -71,6 +71,7 @@ Rails.application.routes.draw do
       get 'dashboard/metrics', to: 'dashboard#metrics'
       get 'dashboard/recent_activity', to: 'dashboard#recent_activity'
       get 'dashboard/trends', to: 'dashboard#trends'
+      get 'dashboard/user_activity', to: 'dashboard#user_activity'
       
       # Admin
       post 'admin/reset_database', to: 'admin#reset_database'

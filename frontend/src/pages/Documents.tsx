@@ -48,13 +48,11 @@ const Documents = () => {
   const [newDocument, setNewDocument] = useState({
     title: '',
     description: '',
-    folder: 'General',
-    tags: '',
     file: null as File | null
   });
 
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-  const folders = ['General', 'Test Cases', 'Requirements', 'Reports', 'Screenshots', 'Videos'];
+
 
   useEffect(() => {
     loadDocuments();
@@ -165,7 +163,63 @@ const Documents = () => {
     }
   };
 
-  const handleUploadDocument = () => {
+  const handleDownload = async (document: Document) => {
+    try {
+      const db = await openDB();
+      const transaction = db.transaction(['files'], 'readonly');
+      const store = transaction.objectStore('files');
+      const request = store.get(document.id);
+      
+      request.onsuccess = () => {
+        const fileData = request.result;
+        if (fileData && fileData.blob) {
+          const url = URL.createObjectURL(fileData.blob);
+          const a = window.document.createElement('a');
+          a.href = url;
+          a.download = fileData.name || document.title;
+          window.document.body.appendChild(a);
+          a.click();
+          window.document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        } else {
+          alert('File not found');
+        }
+      };
+      
+      request.onerror = () => {
+        alert('Download failed');
+      };
+    } catch (error) {
+      alert('Download failed');
+    }
+  };
+
+  const openDB = (): Promise<IDBDatabase> => {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open('DocumentsDB', 1);
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve(request.result);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains('files')) {
+          db.createObjectStore('files', { keyPath: 'id' });
+        }
+      };
+    });
+  };
+
+  const storeFile = async (id: number, file: File) => {
+    try {
+      const db = await openDB();
+      const transaction = db.transaction(['files'], 'readwrite');
+      const store = transaction.objectStore('files');
+      await store.put({ id, blob: file, name: file.name });
+    } catch (error) {
+      console.error('Failed to store file:', error);
+    }
+  };
+
+  const handleUploadDocument = async () => {
     if (!newDocument.file || !newDocument.title.trim()) {
       alert('Please select a file and enter a title');
       return;
@@ -182,27 +236,27 @@ const Documents = () => {
       });
     }, 100);
 
-    setTimeout(() => {
+    setTimeout(async () => {
+      const docId = Date.now();
       const document: Document = {
-        id: Date.now(),
+        id: docId,
         title: newDocument.title,
         description: newDocument.description,
         file_path: `documents/${newDocument.file!.name}`,
         file_size: formatFileSize(newDocument.file!.size),
         content_type: newDocument.file!.type,
         version: '1.0',
-        folder: newDocument.folder,
-        tags: newDocument.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-        uploaded_by: `${currentUser.first_name} ${currentUser.last_name}`,
-        created_at: new Date().toISOString(),
-        file: newDocument.file!
+        folder: 'General',
+        tags: [],
+        uploaded_by: currentUser.email || 'Unknown',
+        created_at: new Date().toISOString()
       };
 
+      await storeFile(docId, newDocument.file!);
       const updatedDocuments = [...documents, document];
       setDocuments(updatedDocuments);
       localStorage.setItem('documents', JSON.stringify(updatedDocuments));
 
-      // Add document upload notification
       if ((window as any).addNotification) {
         (window as any).addNotification(
           'Document Uploaded', 
@@ -216,8 +270,6 @@ const Documents = () => {
       setNewDocument({
         title: '',
         description: '',
-        folder: 'General',
-        tags: '',
         file: null
       });
     }, 1200);
@@ -295,29 +347,7 @@ const Documents = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Folder</Label>
-                  <Select value={newDocument.folder} onValueChange={(value) => setNewDocument({ ...newDocument, folder: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {folders.map(folder => (
-                        <SelectItem key={folder} value={folder}>{folder}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Tags</Label>
-                  <Input
-                    value={newDocument.tags}
-                    onChange={(e) => setNewDocument({ ...newDocument, tags: e.target.value })}
-                    placeholder="tag1, tag2, tag3"
-                  />
-                </div>
-              </div>
+
 
               {isProcessing && (
                 <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
@@ -420,18 +450,10 @@ const Documents = () => {
                   )}
 
                   <div className="flex justify-between pt-2">
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => handleDownload(document)}>
                       <Download className="h-3 w-3 mr-1" />
                       Download
                     </Button>
-                    <div className="space-x-2">
-                      <Button variant="outline" size="sm">
-                        Edit
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        Share
-                      </Button>
-                    </div>
                   </div>
                 </div>
               </CardContent>

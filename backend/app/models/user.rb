@@ -1,9 +1,11 @@
 class User < ApplicationRecord
   has_secure_password
 
+  ROLES = %w[developer tester manager admin].freeze
+
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :first_name, :last_name, presence: true
-  validates :role, inclusion: { in: %w[qa_engineer qa_manager developer compliance_officer admin] }
+  validates :role, inclusion: { in: ROLES }
   validates :status, inclusion: { in: %w[active inactive suspended] }
 
   has_many :created_test_cases, class_name: 'TestCase', foreign_key: 'created_by_id'
@@ -28,19 +30,26 @@ class User < ApplicationRecord
     role == 'admin'
   end
 
-  def compliance_officer?
-    role == 'compliance_officer'
-  end
-
-  def qa_manager?
-    role == 'qa_manager'
+  def manager?
+    role == 'manager'
   end
 
   def developer?
     role == 'developer'
   end
 
-  def qa_engineer?
-    role == 'qa_engineer'
+  def tester?
+    role == 'tester'
+  end
+
+  # Permission methods
+  def can_access?(feature)
+    permissions = {
+      'developer' => %w[dashboard tickets],
+      'tester' => %w[dashboard test-cases automation tickets documents analytics],
+      'manager' => %w[dashboard test-cases automation tickets documents analytics],
+      'admin' => %w[dashboard test-cases automation tickets documents analytics users]
+    }
+    permissions[role]&.include?(feature.to_s) || false
   end
 end

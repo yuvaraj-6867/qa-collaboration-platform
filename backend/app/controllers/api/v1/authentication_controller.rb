@@ -7,6 +7,7 @@ class Api::V1::AuthenticationController < ApplicationController
     user = User.find_by(email: params[:email])
     
     if user&.authenticate(params[:password])
+      user.update(last_activity_at: Time.current)
       token = JsonWebToken.encode(user_id: user.id)
       render json: {
         token: token,

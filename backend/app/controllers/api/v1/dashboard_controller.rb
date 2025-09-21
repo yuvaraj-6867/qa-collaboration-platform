@@ -40,6 +40,35 @@ class Api::V1::DashboardController < ApplicationController
     }
   end
 
+  def user_activity
+    users = User.includes(:created_test_cases, :created_tickets, :test_runs)
+                .select(:id, :first_name, :last_name, :email, :role, :status, :last_activity_at, :created_at)
+                .limit(10)
+    
+    user_activities = users.map do |user|
+      recent_activity = get_user_recent_activity(user)
+      {
+        id: user.id,
+        name: "#{user.first_name} #{user.last_name}",
+        initials: "#{user.first_name&.first}#{user.last_name&.first}".upcase,
+        email: user.email,
+        role: user.role,
+        status: determine_user_status(user),
+        activity: recent_activity[:message],
+        active_time: calculate_active_time(user),
+        last_seen: format_last_seen(user.last_activity_at),
+        progress: recent_activity[:progress]
+      }
+    end
+
+    render json: {
+      online_users: users.count { |u| determine_user_status(u) == 'online' },
+      today_active: users.count { |u| u.last_activity_at&.> 1.day.ago },
+      week_active: users.count { |u| u.last_activity_at&.> 1.week.ago },
+      users: user_activities
+    }
+  end
+
   private
 
   def test_metrics
@@ -76,7 +105,7 @@ class Api::V1::DashboardController < ApplicationController
   end
 
   def pass_fail_trend
-    (6.downto(0)).map do |days_ago|
+    (4.downto(0)).map do |days_ago|
       date = days_ago.days.ago.to_date
       runs = TestRun.where(created_at: date.beginning_of_day..date.end_of_day)
       {
@@ -88,7 +117,7 @@ class Api::V1::DashboardController < ApplicationController
   end
 
   def ticket_trend
-    (6.downto(0)).map do |days_ago|
+    (4.downto(0)).map do |days_ago|
       date = days_ago.days.ago.to_date
       tickets = Ticket.where(created_at: date.beginning_of_day..date.end_of_day)
       {
@@ -113,5 +142,67 @@ class Api::V1::DashboardController < ApplicationController
     
     automated_cases = TestCase.joins(:automation_scripts).where(automation_scripts: { status: 'active' }).distinct.count
     (automated_cases.to_f / total_cases * 100).round(2)
+  end
+
+  def get_user_recent_activity(user)
+    recent_test_cases = user.created_test_cases.where('created_at > ?', 1.day.ago).count
+    recent_tickets = user.created_tickets.where('created_at > ?', 1.day.ago).count
+    recent_runs = user.test_runs.where('created_at > ?', 1.day.ago).count
+    
+    if recent_test_cases > 0
+      { message: "Created #{recent_test_cases} test case#{'s' if recent_test_cases > 1}", progress: [recent_test_cases * 20, 100].min }
+    elsif recent_tickets > 0
+      { message: "Updated #{recent_tickets} ticket#{'s' if recent_tickets > 1}", progress: [recent_tickets * 15, 100].min }
+    elsif recent_runs > 0
+      { message: "Ran #{recent_runs} test#{'s' if recent_runs > 1}", progress: [recent_runs * 10, 100].min }
+    else
+      { message: 'No recent activity', progress: 5 }
+    end
+  end
+
+  def determine_user_status(user)
+    return 'offline' unless user.last_activity_at
+    
+    if user.last_activity_at > 5.minutes.ago
+      'online'
+    elsif user.last_activity_at > 30.minutes.ago
+      'away'
+    else
+      'offline'
+    end
+  end
+
+  def calculate_active_time(user)
+    return '0m' unless user.last_activity_at
+    
+    if user.last_activity_at > 1.day.ago
+      time_diff = Time.current - user.last_activity_at
+      hours = (time_diff / 1.hour).to_i
+      minutes = ((time_diff % 1.hour) / 1.minute).to_i
+      
+      if hours > 0
+        "#{hours}h #{minutes}m"
+      else
+        "#{minutes}m"
+      end
+    else
+      '0m'
+    end
+  end
+
+  def format_last_seen(last_activity)
+    return 'Never' unless last_activity
+    
+    time_ago = Time.current - last_activity
+    
+    if time_ago < 1.minute
+      'Now'
+    elsif time_ago < 1.hour
+      "#{(time_ago / 1.minute).to_i}m ago"
+    elsif time_ago < 1.day
+      "#{(time_ago / 1.hour).to_i}h ago"
+    else
+      "#{(time_ago / 1.day).to_i}d ago"
+    end
   end
 end

@@ -47,6 +47,8 @@ module Authorization
       %w[admin qa_manager].include?(current_user.role)
     when 'tickets'
       %w[admin qa_manager developer qa_engineer].include?(current_user.role)
+    when 'user_invitations'
+      %w[admin qa_manager qa_engineer].include?(current_user.role)
     else
       can_read?
     end

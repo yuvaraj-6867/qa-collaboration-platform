@@ -12,8 +12,6 @@ import { usersApi } from '@/lib/api';
 interface User {
   id: number;
   email: string;
-  first_name: string;
-  last_name: string;
   role: string;
   status: string;
   phone?: string;
@@ -30,19 +28,17 @@ const Users: React.FC = () => {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [inviteData, setInviteData] = useState({
     email: '',
-    firstName: '',
-    lastName: '',
     role: 'qa_engineer'
   });
 
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 
   const handleInviteUser = async () => {
-    if (!inviteData.email || !inviteData.firstName || !inviteData.lastName) {
+    if (!inviteData.email) {
       if ((window as any).addNotification) {
         (window as any).addNotification(
           'Validation Error',
-          'Please fill in all required fields',
+          'Please fill in email address',
           'error'
         );
       }
@@ -58,8 +54,6 @@ const Users: React.FC = () => {
         },
         body: JSON.stringify({
           email: inviteData.email,
-          first_name: inviteData.firstName,
-          last_name: inviteData.lastName,
           role: inviteData.role
         })
       });
@@ -77,7 +71,7 @@ const Users: React.FC = () => {
 
 
 
-      setInviteData({ email: '', firstName: '', lastName: '', role: 'qa_engineer' });
+      setInviteData({ email: '', role: 'qa_engineer' });
       setIsInviteDialogOpen(false);
     } catch (error) {
       if ((window as any).addNotification) {
@@ -88,7 +82,7 @@ const Users: React.FC = () => {
         );
       }
 
-      setInviteData({ email: '', firstName: '', lastName: '', role: 'qa_engineer' });
+      setInviteData({ email: '', role: 'qa_engineer' });
       setIsInviteDialogOpen(false);
     }
   };
@@ -144,14 +138,12 @@ const Users: React.FC = () => {
       case 'qa_manager': return 'QA Manager';
       case 'qa_engineer': return 'QA Engineer';
       case 'developer': return 'Developer';
-      case 'compliance_officer': return 'Compliance Officer';
       case 'admin': return 'Administrator';
       default: return role;
     }
   };
 
   const filteredUsers = users.filter(user =>
-    `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -190,24 +182,6 @@ const Users: React.FC = () => {
                   placeholder="user@company.com"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>First Name *</Label>
-                  <Input
-                    value={inviteData.firstName}
-                    onChange={(e) => setInviteData({ ...inviteData, firstName: e.target.value })}
-                    placeholder="John"
-                  />
-                </div>
-                <div>
-                  <Label>Last Name *</Label>
-                  <Input
-                    value={inviteData.lastName}
-                    onChange={(e) => setInviteData({ ...inviteData, lastName: e.target.value })}
-                    placeholder="Doe"
-                  />
-                </div>
-              </div>
               <div>
                 <Label>Role</Label>
                 <Select value={inviteData.role} onValueChange={(value) => setInviteData({ ...inviteData, role: value })}>
@@ -218,7 +192,6 @@ const Users: React.FC = () => {
                     <SelectItem value="qa_engineer">QA Engineer</SelectItem>
                     <SelectItem value="qa_manager">QA Manager</SelectItem>
                     <SelectItem value="developer">Developer</SelectItem>
-                    <SelectItem value="compliance_officer">Compliance Officer</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -282,17 +255,16 @@ const Users: React.FC = () => {
                         <div className="flex items-center">
                           <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                             <span className="text-sm font-medium text-white">
-                              {user.first_name[0]}{user.last_name[0]}
+                              {user.email[0].toUpperCase()}
                             </span>
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-2">
-                              {user.first_name} {user.last_name}
+                              {user.email}
                               {user.id === currentUser.id && (
                                 <Badge className="bg-blue-100 text-blue-800 text-xs">You</Badge>
                               )}
                             </div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
                           </div>
                         </div>
                       </td>

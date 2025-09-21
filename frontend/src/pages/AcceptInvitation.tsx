@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,19 +7,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, XCircle } from 'lucide-react';
 
 const AcceptInvitation = () => {
-  const [searchParams] = useSearchParams();
+  const { token } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [invitation, setInvitation] = useState<any>(null);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     password: '',
-    confirmPassword: '',
-    firstName: '',
-    lastName: ''
+    confirmPassword: ''
   });
-
-  const token = searchParams.get('token');
 
   useEffect(() => {
     if (token) {
@@ -64,8 +60,6 @@ const AcceptInvitation = () => {
         body: JSON.stringify({
           token,
           user: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
             password: formData.password,
             password_confirmation: formData.confirmPassword
           }
@@ -125,25 +119,6 @@ const AcceptInvitation = () => {
             <Label>Email</Label>
             <Input value={invitation?.email || ''} disabled />
           </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>First Name</Label>
-              <Input
-                value={formData.firstName}
-                onChange={(e) => setFormData({...formData, firstName: e.target.value})}
-                placeholder="John"
-              />
-            </div>
-            <div>
-              <Label>Last Name</Label>
-              <Input
-                value={formData.lastName}
-                onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-                placeholder="Doe"
-              />
-            </div>
-          </div>
 
           <div>
             <Label>Password</Label>
@@ -172,7 +147,7 @@ const AcceptInvitation = () => {
           <Button 
             onClick={handleAcceptInvitation} 
             className="w-full"
-            disabled={!formData.firstName || !formData.lastName || !formData.password}
+            disabled={!formData.password}
           >
             Accept Invitation
           </Button>
