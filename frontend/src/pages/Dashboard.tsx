@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 
 import { DashboardMetrics, Activity } from '@/types';
+import { dashboardApi, projectsApi } from '@/lib/api';
 import { TrendingUp, CheckCircle, AlertCircle, Activity as ActivityIcon, FolderOpen, Plus } from 'lucide-react';
 
 const Dashboard = () => {
@@ -51,33 +52,13 @@ const Dashboard = () => {
 
   const loadData = async () => {
     try {
-      const token = localStorage.getItem('token');
-      
       // Fetch metrics
-      const metricsResponse = await fetch('http://localhost:3001/api/v1/dashboard/metrics', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (metricsResponse.ok) {
-        const metricsData = await metricsResponse.json();
-        setMetrics(metricsData);
-      }
+      const metricsResult = await dashboardApi.getMetrics();
+      setMetrics(metricsResult.data);
 
       // Fetch projects
-      const projectsResponse = await fetch('http://localhost:3001/api/v1/projects', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (projectsResponse.ok) {
-        const projectData = await projectsResponse.json();
-        setProjects(projectData);
-      }
+      const projectsResult = await projectsApi.getAll();
+      setProjects(projectsResult.data);
 
       setActivities([]);
     } catch (error) {
@@ -89,18 +70,8 @@ const Dashboard = () => {
 
   const loadUserActivity = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/v1/dashboard/user_activity', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setUserActivity(data);
-      }
+      const result = await dashboardApi.getUserActivity();
+      setUserActivity(result.data);
     } catch (error) {
       console.error('Failed to load user activity:', error);
     }
@@ -108,19 +79,9 @@ const Dashboard = () => {
 
   const loadTrends = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/v1/dashboard/trends', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        const chartValues = data.pass_fail_trend.map((item: any) => item.passed + item.failed);
-        setChartData(chartValues);
-      }
+      const result = await dashboardApi.getTrends();
+      const chartValues = result.data.pass_fail_trend.map((item: any) => item.passed + item.failed);
+      setChartData(chartValues);
     } catch (error) {
       console.error('Failed to load trends:', error);
     }
@@ -139,28 +100,18 @@ const Dashboard = () => {
     setError('');
     
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/v1/projects', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ project: newProject }),
-      });
-
-      if (response.ok) {
-        if ((window as any).addNotification) {
-          (window as any).addNotification(
-            'Project Created',
-            `Project "${newProject.name}" has been created successfully`,
-            'success'
-          );
-        }
-        setNewProject({ name: '', description: '', status: 'active' });
-        setIsCreateDialogOpen(false);
-        loadData();
+      await projectsApi.create(newProject);
+      
+      if ((window as any).addNotification) {
+        (window as any).addNotification(
+          'Project Created',
+          `Project "${newProject.name}" has been created successfully`,
+          'success'
+        );
       }
+      setNewProject({ name: '', description: '', status: 'active' });
+      setIsCreateDialogOpen(false);
+      loadData();
     } catch (error) {
       console.error('Failed to create project:', error);
       setError('Failed to create project');
