@@ -3,6 +3,7 @@ services:
     name: qa-collaboration-platform
     env: ruby
     rootDir: backend
+    runtime: ruby-3.3.0
     buildCommand: bundle install && rails db:migrate
     startCommand: bundle exec rails server -p $PORT -e production
     envVars:
