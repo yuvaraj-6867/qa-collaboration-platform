@@ -15,6 +15,8 @@ class User < ApplicationRecord
   has_many :test_runs
   has_many :notifications, dependent: :destroy
   has_one :user_setting, dependent: :destroy
+  has_many :video_analyses, dependent: :destroy
+
 
   scope :active, -> { where(status: 'active') }
 
@@ -46,9 +48,9 @@ class User < ApplicationRecord
   def can_access?(feature)
     permissions = {
       'developer' => %w[dashboard tickets],
-      'tester' => %w[dashboard test-cases automation tickets documents analytics],
-      'manager' => %w[dashboard test-cases automation tickets documents analytics],
-      'admin' => %w[dashboard test-cases automation tickets documents analytics users]
+      'tester' => %w[dashboard test-cases automation tickets documents analytics video-analysis],
+      'manager' => %w[dashboard test-cases automation tickets documents analytics video-analysis],
+      'admin' => %w[dashboard test-cases automation tickets documents analytics users video-analysis]
     }
     permissions[role]&.include?(feature.to_s) || false
   end

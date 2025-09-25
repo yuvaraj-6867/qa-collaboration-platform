@@ -54,6 +54,14 @@ Rails.application.routes.draw do
       
       resources :labels
       
+      resources :video_analyses, only: [:create] do
+        member do
+          post :analyze
+          get :results
+        end
+      end
+      post 'video_analyses/upload', to: 'video_analyses#upload'
+      
       resources :notifications, only: [:index] do
         collection do
           get :count

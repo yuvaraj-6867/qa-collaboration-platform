@@ -1,13 +1,33 @@
 source "https://rubygems.org"
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+
+ruby "3.3.0"
 
 gem "rails", "~> 7.1.0"
-gem "pg", "~> 1.1", group: :production
-gem "sqlite3", "~> 1.4", group: [:development, :test]
-gem "puma", ">= 5.0"
-gem "bootsnap", require: false
-gem "rack-cors"
+# gem "sprockets-rails", ">= 3.4.0" # Not needed for API-only app
+gem "sqlite3", "~> 1.4"
+gem "pg", "~> 1.1"
+gem "puma", "~> 6.0"
+# gem "importmap-rails" # Not needed for API-only app
+# gem "turbo-rails" # Not needed for API-only app
+# gem "stimulus-rails" # Not needed for API-only app
 gem "jbuilder"
+gem "redis", "~> 4.0"
+gem "bootsnap", require: false
+gem "image_processing", "~> 1.2"
+gem "bcrypt", "~> 3.1.7"
 gem "jwt"
-gem "bcrypt"
-gem "psych", "~> 4.0"
-gem "dotenv-rails", groups: [:development, :test]
+gem "rack-cors"
+
+# Video processing
+gem "streamio-ffmpeg"
+
+group :development, :test do
+  gem "debug", platforms: %i[ mri mingw x64_mingw ]
+  gem "rspec-rails"
+  gem "factory_bot_rails"
+end
+
+group :development do
+  gem "web-console"
+end

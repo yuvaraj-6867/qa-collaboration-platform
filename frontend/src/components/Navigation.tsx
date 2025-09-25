@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { BarChart3, FileText, Ticket, Bot, File, TrendingUp, Users } from 'lucide-react';
+import { BarChart3, FileText, Ticket, Bot, File, TrendingUp, Users, Video } from 'lucide-react';
 import Notifications from './Notifications';
 import ProfileDrawer from './ProfileDrawer';
 import logo from '../logo/logo.png';
@@ -68,9 +68,9 @@ const Navigation = ({ user, onLogout }: NavigationProps) => {
     const role = currentUser.role;
     const permissions = {
       developer: ['dashboard', 'tickets'],
-      tester: ['dashboard', 'test-cases', 'automation', 'tickets', 'documents', 'analytics'],
-      manager: ['dashboard', 'test-cases', 'automation', 'tickets', 'documents', 'analytics'],
-      admin: ['dashboard', 'test-cases', 'automation', 'tickets', 'documents', 'analytics', 'users']
+      tester: ['dashboard', 'test-cases', 'automation', 'tickets', 'documents', 'analytics', 'video-analysis'],
+      manager: ['dashboard', 'test-cases', 'automation', 'tickets', 'documents', 'analytics', 'video-analysis'],
+      admin: ['dashboard', 'test-cases', 'automation', 'tickets', 'documents', 'analytics', 'users', 'video-analysis']
     };
     return permissions[role as keyof typeof permissions]?.includes(feature) || false;
   };
@@ -139,6 +139,19 @@ const Navigation = ({ user, onLogout }: NavigationProps) => {
               Automation
             </Link>
           )}
+          {hasAccess('video-analysis') && (
+            <Link
+              to="/video-analysis"
+              className={`flex items-center px-6 py-2.5 text-sm font-medium transition-colors ${location.pathname === '/video-analysis'
+                ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-600'
+                : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+            >
+              <Video className="h-5 w-5 mr-3 text-blue-600" />
+              Video Analysis
+            </Link>
+          )}
+
           {(hasAccess('tickets') || hasAccess('documents')) && (
             <div className="px-6 py-2 mt-4">
               <h3 className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Management</h3>

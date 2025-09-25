@@ -10,16 +10,41 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_21_142852) do
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+ActiveRecord::Schema[7.1].define(version: 2025_09_24_084131) do
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
 
   create_table "automation_scripts", force: :cascade do |t|
     t.string "name"
     t.text "description"
     t.string "script_path"
-    t.bigint "test_case_id", null: false
-    t.bigint "user_id", null: false
+    t.integer "test_case_id", null: false
+    t.integer "user_id", null: false
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -30,8 +55,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_142852) do
   create_table "comments", force: :cascade do |t|
     t.text "content"
     t.string "commentable_type", null: false
-    t.bigint "commentable_id", null: false
-    t.bigint "user_id", null: false
+    t.integer "commentable_id", null: false
+    t.integer "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["commentable_type", "commentable_id"], name: "index_comments_on_commentable"
@@ -45,8 +70,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_142852) do
     t.integer "file_size"
     t.string "content_type"
     t.string "version"
-    t.bigint "folder_id", null: false
-    t.bigint "user_id", null: false
+    t.integer "folder_id", null: false
+    t.integer "user_id", null: false
     t.text "tags"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -57,7 +82,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_142852) do
   create_table "folders", force: :cascade do |t|
     t.string "name"
     t.text "description"
-    t.bigint "parent_id"
+    t.integer "parent_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["parent_id"], name: "index_folders_on_parent_id"
@@ -70,7 +95,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_142852) do
     t.string "role", null: false
     t.string "token", null: false
     t.integer "status", default: 0
-    t.bigint "invited_by_id", null: false
+    t.integer "invited_by_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_invitations_on_email"
@@ -88,13 +113,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_142852) do
   end
 
   create_table "notifications", force: :cascade do |t|
-    t.bigint "user_id", null: false
+    t.integer "user_id", null: false
     t.string "title"
     t.text "message"
     t.string "notification_type"
     t.boolean "read", default: false
     t.string "notifiable_type"
-    t.bigint "notifiable_id"
+    t.integer "notifiable_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable"
@@ -110,7 +135,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_142852) do
   end
 
   create_table "test_case_attachments", force: :cascade do |t|
-    t.bigint "test_case_id", null: false
+    t.integer "test_case_id", null: false
     t.string "filename", null: false
     t.string "content_type", null: false
     t.integer "file_size", null: false
@@ -129,9 +154,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_142852) do
     t.text "expected_results"
     t.integer "priority"
     t.string "status"
-    t.bigint "assigned_user_id"
-    t.bigint "folder_id"
-    t.bigint "created_by_id", null: false
+    t.integer "assigned_user_id"
+    t.integer "folder_id"
+    t.integer "created_by_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "test_data"
@@ -144,23 +169,23 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_142852) do
   end
 
   create_table "test_runs", force: :cascade do |t|
-    t.bigint "test_case_id", null: false
-    t.bigint "user_id", null: false
+    t.integer "test_case_id", null: false
+    t.integer "user_id", null: false
     t.string "status"
     t.integer "execution_time"
     t.text "notes"
     t.text "evidence"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "automation_script_id"
+    t.integer "automation_script_id"
     t.index ["automation_script_id"], name: "index_test_runs_on_automation_script_id"
     t.index ["test_case_id"], name: "index_test_runs_on_test_case_id"
     t.index ["user_id"], name: "index_test_runs_on_user_id"
   end
 
   create_table "ticket_labels", force: :cascade do |t|
-    t.bigint "ticket_id", null: false
-    t.bigint "label_id", null: false
+    t.integer "ticket_id", null: false
+    t.integer "label_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["label_id"], name: "index_ticket_labels_on_label_id"
@@ -173,13 +198,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_142852) do
     t.string "status"
     t.string "priority"
     t.string "severity"
-    t.bigint "assigned_user_id"
-    t.bigint "created_by_id", null: false
+    t.integer "assigned_user_id"
+    t.integer "created_by_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.decimal "estimate", precision: 5, scale: 2
-    t.bigint "test_case_id"
-    t.bigint "test_run_id"
+    t.integer "test_case_id"
+    t.integer "test_run_id"
     t.index ["assigned_user_id"], name: "index_tickets_on_assigned_user_id"
     t.index ["created_by_id"], name: "index_tickets_on_created_by_id"
     t.index ["test_case_id"], name: "index_tickets_on_test_case_id"
@@ -189,7 +214,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_142852) do
   create_table "user_invitations", force: :cascade do |t|
     t.string "email"
     t.string "status", default: "pending"
-    t.bigint "invited_by_id", null: false
+    t.integer "invited_by_id", null: false
     t.string "role"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -199,7 +224,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_142852) do
   end
 
   create_table "user_settings", force: :cascade do |t|
-    t.bigint "user_id", null: false
+    t.integer "user_id", null: false
     t.string "theme", default: "system"
     t.string "language", default: "en"
     t.string "timezone", default: "UTC"
@@ -226,6 +251,18 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_142852) do
     t.datetime "last_activity_at"
   end
 
+  create_table "video_analyses", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "filename"
+    t.string "status"
+    t.json "analysis_results"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_video_analyses_on_user_id"
+  end
+
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "automation_scripts", "test_cases"
   add_foreign_key "automation_scripts", "users"
   add_foreign_key "comments", "users"
@@ -249,4 +286,5 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_21_142852) do
   add_foreign_key "tickets", "users", column: "created_by_id"
   add_foreign_key "user_invitations", "users", column: "invited_by_id"
   add_foreign_key "user_settings", "users"
+  add_foreign_key "video_analyses", "users"
 end

@@ -11,6 +11,8 @@ import Documents from './pages/Documents';
 import Analytics from './pages/analytics';
 import Users from './pages/Users';
 import Settings from './pages/Settings';
+import VideoAnalysis from './pages/VideoAnalysis';
+
 
 import AcceptInvitation from './pages/AcceptInvitation';
 import AllNotifications from './pages/AllNotifications';
@@ -48,6 +50,8 @@ function AppContent() {
         <Route path="/analytics" element={isAuthenticated ? <Analytics /> : <Navigate to="/login" replace />} />
         <Route path="/users" element={isAuthenticated ? <Users /> : <Navigate to="/login" replace />} />
         <Route path="/settings" element={isAuthenticated ? <Settings /> : <Navigate to="/login" replace />} />
+        <Route path="/video-analysis" element={isAuthenticated ? <VideoAnalysis /> : <Navigate to="/login" replace />} />
+
 
         <Route path="/notifications" element={isAuthenticated ? <AllNotifications /> : <Navigate to="/login" replace />} />
           <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />

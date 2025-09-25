@@ -106,8 +106,8 @@ const TestCases: React.FC = () => {
       localStorage.setItem('testCases', JSON.stringify(updatedTestCases));
       if ((window as any).addNotification) {
         (window as any).addNotification(
-          'Test Case Created', 
-          `Test case "${mockTestCase.title}" has been created successfully`, 
+          'Test Case Created',
+          `Test case "${mockTestCase.title}" has been created successfully`,
           'success'
         );
       }
@@ -404,7 +404,6 @@ const TestCases: React.FC = () => {
                   <div>
                     <span className="font-medium">Created by:</span> {testCase.created_by || 'Unknown'}
                   </div>
-
                 </div>
                 <div className="flex justify-end mt-4 space-x-2">
                   <Button

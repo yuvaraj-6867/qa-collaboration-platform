@@ -55,7 +55,9 @@ class ApplicationController < ActionController::API
       'tickets' => 'tickets',
       'documents' => 'documents',
       'analytics' => 'analytics',
-      'users' => 'users'
+      'users' => 'users',
+      'video_analyses' => 'video-analysis',
+
     }
     mapping[controller]
   end
