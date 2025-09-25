@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { X, User, Shield, Palette, Key, Sun, Moon, Monitor } from 'lucide-react';
+import { X, User, Shield, Palette, Key, Sun, Moon, Monitor, Camera } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useGlobalSnackbar } from './SnackbarProvider';
 
 interface ProfileDrawerProps {
   isOpen: boolean;
@@ -22,8 +23,37 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, activeTa
   });
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState({ type: '', text: '' });
+  const [currentUser, setCurrentUser] = useState(JSON.parse(localStorage.getItem('user') || '{}'));
+  const [profileImage, setProfileImage] = useState(currentUser.profile_image || '');
+  const { showSuccess, showError } = useGlobalSnackbar();
 
-  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        showError('Image size should be less than 5MB');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageUrl = e.target?.result as string;
+        setProfileImage(imageUrl);
+        
+        const updatedUser = { ...currentUser, profile_image: imageUrl };
+        setCurrentUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+        window.dispatchEvent(new CustomEvent('userUpdated', { detail: updatedUser }));
+        showSuccess('Profile image updated successfully!');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   useEffect(() => {
     setCurrentTab(activeTab);
@@ -155,7 +185,43 @@ const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, activeTa
                   Your personal information
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
+                <div className="flex items-center space-x-4">
+                  <div className="relative">
+                    {profileImage ? (
+                      <img
+                        src={profileImage}
+                        alt="Profile"
+                        className="w-16 h-16 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-lg font-bold border-2 border-gray-200 dark:border-gray-600">
+                        {getInitials(currentUser.first_name, currentUser.last_name)}
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      id="profile-image-drawer"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <Button
+                      size="sm"
+                      className="absolute -bottom-1 -right-1 rounded-full w-6 h-6 p-0 bg-blue-600 hover:bg-blue-700"
+                      onClick={() => document.getElementById('profile-image-drawer')?.click()}
+                    >
+                      <Camera className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                      {currentUser.first_name} {currentUser.last_name}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{currentUser.email}</p>
+                  </div>
+                </div>
+                
                 <div>
                   <Label className="text-gray-900 dark:text-white">First Name</Label>
                   <Input

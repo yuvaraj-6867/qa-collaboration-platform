@@ -99,6 +99,9 @@ Rails.application.routes.draw do
       
       # Invitations
       post 'invitations/send', to: 'invitations#send_invitation'
+      
+      # Calendar Events
+      resources :calendar_events
     end
   end
 

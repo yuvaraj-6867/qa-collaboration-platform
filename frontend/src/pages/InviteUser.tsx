@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { UserPlus, Mail, Clock, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+import { useGlobalSnackbar } from '@/components/SnackbarProvider';
 
 interface Invitation {
   id: number;
@@ -29,6 +30,7 @@ const InviteUser = () => {
     email: '',
     role: 'qa_engineer'
   });
+  const { showSuccess, showError } = useGlobalSnackbar();
 
   const roles = [
     { value: 'qa_engineer', label: 'QA Engineer' },
@@ -82,14 +84,14 @@ const InviteUser = () => {
           role: 'qa_engineer'
         });
         setIsDialogOpen(false);
-        alert('Invitation sent successfully!');
+        showSuccess('Invitation sent successfully!');
       } else {
         const errorData = await response.json();
-        alert(`Error: ${errorData.errors?.join(', ') || 'Failed to send invitation'}`);
+        showError(`Error: ${errorData.errors?.join(', ') || 'Failed to send invitation'}`);
       }
     } catch (error) {
       console.error('Failed to send invitation:', error);
-      alert('Failed to send invitation');
+      showError('Failed to send invitation');
     } finally {
       setLoading(false);
     }
@@ -107,14 +109,14 @@ const InviteUser = () => {
       });
 
       if (response.ok) {
-        alert('Invitation resent successfully!');
+        showSuccess('Invitation resent successfully!');
       } else {
         const errorData = await response.json();
-        alert(`Error: ${errorData.error || 'Failed to resend invitation'}`);
+        showError(`Error: ${errorData.error || 'Failed to resend invitation'}`);
       }
     } catch (error) {
       console.error('Failed to resend invitation:', error);
-      alert('Failed to resend invitation');
+      showError('Failed to resend invitation');
     }
   };
 
@@ -133,13 +135,13 @@ const InviteUser = () => {
 
       if (response.ok) {
         setInvitations(invitations.filter(inv => inv.id !== invitationId));
-        alert('Invitation cancelled successfully!');
+        showSuccess('Invitation cancelled successfully!');
       } else {
-        alert('Failed to cancel invitation');
+        showError('Failed to cancel invitation');
       }
     } catch (error) {
       console.error('Failed to cancel invitation:', error);
-      alert('Failed to cancel invitation');
+      showError('Failed to cancel invitation');
     }
   };
 

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { FileUpload } from './ui/file-upload';
 import { MediaViewer } from './MediaViewer';
+import { DocumentViewer } from './DocumentViewer';
+import { useGlobalSnackbar } from './SnackbarProvider';
 
 interface Attachment {
   id: number;
   filename: string;
   content_type: string;
-  attachment_type: 'image' | 'video';
+  attachment_type: 'image' | 'video' | 'document';
   file_url: string;
 }
 
@@ -26,6 +28,7 @@ export const AttachmentUpload: React.FC<AttachmentUploadProps> = ({
   apiEndpoint
 }) => {
   const [uploading, setUploading] = useState(false);
+  const { showError } = useGlobalSnackbar();
 
   const handleFileUpload = async (files: FileList) => {
     setUploading(true);
@@ -53,7 +56,7 @@ export const AttachmentUpload: React.FC<AttachmentUploadProps> = ({
       onAttachmentsChange([...attachments, ...newAttachments]);
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Upload failed. Please try again.');
+      showError('Upload failed. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -73,7 +76,7 @@ export const AttachmentUpload: React.FC<AttachmentUploadProps> = ({
       onAttachmentsChange(attachments.filter(att => att.id !== attachmentId));
     } catch (error) {
       console.error('Delete error:', error);
-      alert('Delete failed. Please try again.');
+      showError('Delete failed. Please try again.');
     }
   };
 
@@ -83,7 +86,7 @@ export const AttachmentUpload: React.FC<AttachmentUploadProps> = ({
         <h3 className="font-medium mb-2">Attachments</h3>
         <FileUpload
           onFileSelect={handleFileUpload}
-          accept="image/*,video/*"
+          accept="image/*,video/*,.xlsx,.xls,.csv,.pdf,.doc,.docx"
           multiple={true}
           maxSize={50}
         />
@@ -95,6 +98,12 @@ export const AttachmentUpload: React.FC<AttachmentUploadProps> = ({
       </div>
       
       <MediaViewer
+        attachments={attachments}
+        onDelete={handleDelete}
+        showDelete={true}
+      />
+      
+      <DocumentViewer
         attachments={attachments}
         onDelete={handleDelete}
         showDelete={true}

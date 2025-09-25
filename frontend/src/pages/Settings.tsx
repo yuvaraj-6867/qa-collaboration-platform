@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useGlobalSnackbar } from '@/components/SnackbarProvider';
 import { 
   User, 
   Bell, 
@@ -52,6 +53,7 @@ const Settings: React.FC = () => {
   const [passwordMessage, setPasswordMessage] = useState({ type: '', text: '' });
 
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const { showSuccess, showError } = useGlobalSnackbar();
 
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -427,10 +429,10 @@ const Settings: React.FC = () => {
                         });
                         const data = await response.json();
                         console.log('Auth Status:', data);
-                        alert(`Auth Status: ${data.authenticated ? 'Valid' : 'Invalid'}`);
+                        showSuccess(`Auth Status: ${data.authenticated ? 'Valid' : 'Invalid'}`);
                       } catch (err) {
                         console.error('Auth check failed:', err);
-                        alert('Auth check failed - see console');
+                        showError('Auth check failed - see console');
                       }
                     }}
                     variant="outline"
@@ -446,11 +448,11 @@ const Settings: React.FC = () => {
                         if (data.token) {
                           localStorage.setItem('token', data.token);
                           localStorage.setItem('user', JSON.stringify(data.user));
-                          alert('Test token set! Please refresh the page.');
+                          showSuccess('Test token set! Please refresh the page.');
                         }
                       } catch (err) {
                         console.error('Failed to get test token:', err);
-                        alert('Failed to get test token - see console');
+                        showError('Failed to get test token - see console');
                       }
                     }}
                     variant="outline"

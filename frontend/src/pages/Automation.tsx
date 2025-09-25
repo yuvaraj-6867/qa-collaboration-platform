@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Search, Plus, Play, FileText, Calendar } from 'lucide-react';
 import { usersApi } from '@/lib/api';
+import { useGlobalSnackbar } from '@/components/SnackbarProvider';
 interface AutomationProps {
   addNotification?: (message: string) => void;
 }
@@ -22,6 +23,7 @@ const Automation: React.FC<AutomationProps> = ({ addNotification }) => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedTestCases, setSelectedTestCases] = useState<string[]>([]);
   const [selectedBrowsers, setSelectedBrowsers] = useState<string[]>([]);
+  const { showError } = useGlobalSnackbar();
   const [newScript, setNewScript] = useState({
     scriptName: '',
     description: '',
@@ -127,7 +129,7 @@ const Automation: React.FC<AutomationProps> = ({ addNotification }) => {
 
   const handleCreateScript = () => {
     if (!newScript.scriptName.trim()) {
-      alert('Script Name is required');
+      showError('Script Name is required');
       return;
     }
 

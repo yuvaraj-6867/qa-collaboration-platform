@@ -4,6 +4,7 @@ import { FileUpload } from './ui/file-upload';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
+import { useGlobalSnackbar } from './SnackbarProvider';
 
 interface Document {
   id?: number;
@@ -28,6 +29,7 @@ export const DocumentForm: React.FC<DocumentFormProps> = ({
     description: document?.description || ''
   });
   const [uploading, setUploading] = useState(false);
+  const { showError } = useGlobalSnackbar();
 
   const handleFileUpload = async (files: FileList) => {
     setUploading(true);
@@ -53,7 +55,7 @@ export const DocumentForm: React.FC<DocumentFormProps> = ({
       onSave(result.document);
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Upload failed. Please try again.');
+      showError('Upload failed. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -62,7 +64,7 @@ export const DocumentForm: React.FC<DocumentFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!document?.id) {
-      alert('Please upload a file first');
+      showError('Please upload a file first');
       return;
     }
     onSave({

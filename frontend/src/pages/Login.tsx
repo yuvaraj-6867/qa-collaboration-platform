@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { authApi } from '@/lib/api';
-import { useGlobalSnackbar } from '@/components/SnackbarProvider';
+
 import { getErrorMessage } from '@/utils/errorHandler';
 
 interface User {
@@ -32,7 +32,14 @@ const Login = ({ onLogin }: LoginProps) => {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [currentView, setCurrentView] = useState<'welcome' | 'signin' | 'signup'>('welcome');
   const [fieldErrors, setFieldErrors] = useState<{email?: string; password?: string; firstName?: string; lastName?: string; confirmPassword?: string}>({});
-  const { showError, showSuccess } = useGlobalSnackbar();
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
+  const showMessage = (message: string) => {
+    setSnackbarMessage(message);
+    setShowSnackbar(true);
+    setTimeout(() => setShowSnackbar(false), 3000);
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +65,7 @@ const Login = ({ onLogin }: LoginProps) => {
 
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      showSuccess('Login successful! Welcome back.');
+      showMessage('Login successful! Welcome back.');
       
       // Add login notification
       if ((window as any).addNotification) {
@@ -76,7 +83,7 @@ const Login = ({ onLogin }: LoginProps) => {
       console.log('Error message:', errorMessage);
       
       // Show error in snackbar
-      showError('Invalid email or password. Please try again.');
+      showMessage('Invalid email or password. Please try again.');
       
       // Show field errors
       setFieldErrors({ 
@@ -129,7 +136,7 @@ const Login = ({ onLogin }: LoginProps) => {
       const data = response.data;
 
       if (data.redirect_to_signin) {
-        showSuccess('Registration successful! Please sign in.');
+        showMessage('Registration successful! Please sign in.');
         setCurrentView('signin');
         // Keep email but clear password fields for security
         setPassword('');
@@ -143,11 +150,11 @@ const Login = ({ onLogin }: LoginProps) => {
       } else {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        showSuccess('Account created successfully! Welcome to QA Platform.');
+        showMessage('Account created successfully! Welcome to QA Platform.');
         setTimeout(() => onLogin(data.token, data.user), 1000);
       }
     } catch (err: any) {
-      showError(getErrorMessage(err));
+      showMessage(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -198,6 +205,21 @@ const Login = ({ onLogin }: LoginProps) => {
             </button>
           </div>
         </div>
+        
+        {/* Custom Snackbar */}
+        {showSnackbar && (
+          <div className="fixed top-4 right-4 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50 min-w-[300px]">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-800">{snackbarMessage}</span>
+              <button
+                onClick={() => setShowSnackbar(false)}
+                className="ml-4 text-gray-400 hover:text-gray-600"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -295,6 +317,21 @@ const Login = ({ onLogin }: LoginProps) => {
             </div>
           </div>
         </div>
+        
+        {/* Custom Snackbar */}
+        {showSnackbar && (
+          <div className="fixed top-4 right-4 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50 min-w-[300px]">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-800">{snackbarMessage}</span>
+              <button
+                onClick={() => setShowSnackbar(false)}
+                className="ml-4 text-gray-400 hover:text-gray-600"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -482,6 +519,21 @@ const Login = ({ onLogin }: LoginProps) => {
             </button>
           </div>
         </div>
+        
+        {/* Custom Snackbar */}
+        {showSnackbar && (
+          <div className="fixed top-4 right-4 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50 min-w-[300px]">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-800">{snackbarMessage}</span>
+              <button
+                onClick={() => setShowSnackbar(false)}
+                className="ml-4 text-gray-400 hover:text-gray-600"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

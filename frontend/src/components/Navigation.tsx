@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { BarChart3, FileText, Ticket, Bot, File, TrendingUp, Users, Video } from 'lucide-react';
+import { BarChart3, FileText, Ticket, Bot, File, TrendingUp, Users, Video, Calendar } from 'lucide-react';
 import Notifications from './Notifications';
 import ProfileDrawer from './ProfileDrawer';
+import { CalendarPopup } from './CalendarPopup';
 import logo from '../logo/logo.png';
 
 interface User {
@@ -11,6 +12,7 @@ interface User {
   first_name: string;
   last_name: string;
   role: string;
+  profile_image?: string;
 }
 
 interface NavigationProps {
@@ -20,7 +22,12 @@ interface NavigationProps {
 
 const Navigation = ({ user, onLogout }: NavigationProps) => {
   const [currentUser, setCurrentUser] = useState(user);
+
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
+  };
   const [showProfileDrawer, setShowProfileDrawer] = useState(false);
+  const [showCalendarPopup, setShowCalendarPopup] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -33,15 +40,31 @@ const Navigation = ({ user, onLogout }: NavigationProps) => {
       setCurrentUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
     }
+
+    const handleStorageChange = () => {
+      const updatedUserData = localStorage.getItem('user');
+      if (updatedUserData) {
+        setCurrentUser(JSON.parse(updatedUserData));
+      }
+    };
+
+    const handleUserUpdate = (event: any) => {
+      setCurrentUser(event.detail);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('userUpdated', handleUserUpdate);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('userUpdated', handleUserUpdate);
+    };
   }, []);
 
   const handleLogout = () => {
     onLogout();
     navigate('/login');
   };
-
-
-
+  
   // Email-based role assignment
   const assignRoleByEmail = (email: string) => {
     if (email.includes('admin@')) return 'admin';
@@ -68,9 +91,9 @@ const Navigation = ({ user, onLogout }: NavigationProps) => {
     const role = currentUser.role;
     const permissions = {
       developer: ['dashboard', 'tickets'],
-      tester: ['dashboard', 'test-cases', 'automation', 'tickets', 'documents', 'analytics', 'video-analysis'],
-      manager: ['dashboard', 'test-cases', 'automation', 'tickets', 'documents', 'analytics', 'video-analysis'],
-      admin: ['dashboard', 'test-cases', 'automation', 'tickets', 'documents', 'analytics', 'users', 'video-analysis']
+      tester: ['dashboard', 'test-cases', 'automation', 'tickets', 'documents', 'analytics', 'video-analysis', 'calendar'],
+      manager: ['dashboard', 'test-cases', 'automation', 'tickets', 'documents', 'analytics', 'video-analysis', 'calendar'],
+      admin: ['dashboard', 'test-cases', 'automation', 'tickets', 'documents', 'analytics', 'users', 'video-analysis', 'calendar']
     };
     return permissions[role as keyof typeof permissions]?.includes(feature) || false;
   };
@@ -80,13 +103,31 @@ const Navigation = ({ user, onLogout }: NavigationProps) => {
       <div className="fixed top-0 left-64 right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-end px-6 z-40">
         <div className="flex items-center space-x-3">
           <Notifications />
+          <div className="relative">
+            <Calendar 
+              className="h-5 w-5 text-gray-600 hover:text-blue-600 cursor-pointer" 
+              onClick={() => setShowCalendarPopup(!showCalendarPopup)}
+            />
+            <CalendarPopup 
+              isOpen={showCalendarPopup} 
+              onClose={() => setShowCalendarPopup(false)} 
+            />
+          </div>
           <button
             onClick={() => setShowProfileDrawer(true)}
             className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-              AU
-            </div>
+            {currentUser.profile_image ? (
+              <img
+                src={currentUser.profile_image}
+                alt="Profile"
+                className="w-8 h-8 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                {getInitials(currentUser.first_name, currentUser.last_name)}
+              </div>
+            )}
           </button>
         </div>
       </div>
@@ -151,6 +192,8 @@ const Navigation = ({ user, onLogout }: NavigationProps) => {
               Video Analysis
             </Link>
           )}
+
+
 
           {(hasAccess('tickets') || hasAccess('documents')) && (
             <div className="px-6 py-2 mt-4">

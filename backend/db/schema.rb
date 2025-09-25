@@ -52,6 +52,27 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_24_084131) do
     t.index ["user_id"], name: "index_automation_scripts_on_user_id"
   end
 
+  create_table "calendar_events", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description"
+    t.datetime "start_time", null: false
+    t.string "event_type", null: false
+    t.string "status", default: "scheduled"
+    t.boolean "all_day", default: false
+    t.string "location"
+    t.text "attendees"
+    t.integer "created_by_id", null: false
+    t.string "eventable_type"
+    t.integer "eventable_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_calendar_events_on_created_by_id"
+    t.index ["event_type"], name: "index_calendar_events_on_event_type"
+    t.index ["eventable_type", "eventable_id"], name: "index_calendar_events_on_eventable"
+    t.index ["start_time"], name: "index_calendar_events_on_start_time"
+    t.index ["status"], name: "index_calendar_events_on_status"
+  end
+
   create_table "comments", force: :cascade do |t|
     t.text "content"
     t.string "commentable_type", null: false
@@ -265,6 +286,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_24_084131) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "automation_scripts", "test_cases"
   add_foreign_key "automation_scripts", "users"
+  add_foreign_key "calendar_events", "users", column: "created_by_id"
   add_foreign_key "comments", "users"
   add_foreign_key "documents", "folders"
   add_foreign_key "documents", "users"

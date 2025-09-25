@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Input } from './input';
+import { useGlobalSnackbar } from '../SnackbarProvider';
 
 interface FileUploadProps {
   onFileSelect: (files: FileList) => void;
@@ -11,18 +12,19 @@ interface FileUploadProps {
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   onFileSelect,
-  accept = "image/*,video/*",
+  accept = "image/*,video/*,.xlsx,.xls,.csv,.pdf,.doc,.docx",
   multiple = true,
   maxSize = 50,
   className = ""
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
+  const { showError } = useGlobalSnackbar();
 
   const handleFiles = (files: FileList) => {
     const validFiles = Array.from(files).filter(file => {
       if (file.size > maxSize * 1024 * 1024) {
-        alert(`File ${file.name} is too large. Max size is ${maxSize}MB`);
+        showError(`File ${file.name} is too large. Max size is ${maxSize}MB`);
         return false;
       }
       return true;
@@ -80,7 +82,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             Drop files here or click to browse
           </div>
           <div className="text-sm text-gray-500">
-            Images and videos up to {maxSize}MB
+            Images, videos, and documents (Excel, PDF, Word) up to {maxSize}MB
           </div>
         </div>
       </div>

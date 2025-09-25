@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Search, Plus, X, MoreHorizontal, Play, FileText, Edit, Copy, ExternalLink, Settings, Table, Columns } from 'lucide-react';
 import { usersApi, projectsApi } from '@/lib/api';
+import { useGlobalSnackbar } from '@/components/SnackbarProvider';
 
 interface TicketsProps {
   addNotification?: (message: string) => void;
@@ -39,6 +40,7 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
   const [showViewStatusDropdown, setShowViewStatusDropdown] = useState(false);
   const [isLoadingTicket, setIsLoadingTicket] = useState(false);
   const [viewMode, setViewMode] = useState<'board' | 'table'>('board');
+  const { showError } = useGlobalSnackbar();
   const [newIssue, setNewIssue] = useState({
     title: '',
     description: '',
@@ -122,7 +124,7 @@ const Tickets: React.FC<TicketsProps> = ({ addNotification }) => {
 
   const handleCreateIssue = async () => {
     if (!newIssue.title.trim()) {
-      alert('Title is required');
+      showError('Title is required');
       return;
     }
 

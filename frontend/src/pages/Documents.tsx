@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useGlobalSnackbar } from '@/components/SnackbarProvider';
 
 import { Search, Upload, Download, FolderOpen, FileSpreadsheet, FileText, Image, Video, File, CheckCircle } from 'lucide-react';
 import * as XLSX from 'xlsx';
@@ -23,6 +24,7 @@ interface Document {
   uploaded_by: string;
   created_at: string;
   file?: File;
+  created_by?: string;
 }
 
 interface TestCase {
@@ -35,6 +37,7 @@ interface TestCase {
   priority: number;
   status: string;
   folder: string;
+  created_by: string;
 }
 
 const Documents = () => {
@@ -52,6 +55,7 @@ const Documents = () => {
   });
 
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const { showError, showSuccess } = useGlobalSnackbar();
 
 
   useEffect(() => {
@@ -93,7 +97,7 @@ const Documents = () => {
       } catch (error) {
         console.error('Error reading Excel file:', error);
         setIsProcessing(false);
-        alert('Error reading Excel file. Please check the format.');
+        showError('Error reading Excel file. Please check the format.');
       }
     };
 
@@ -112,14 +116,15 @@ const Documents = () => {
 
       const testCase: TestCase = {
         id: `TC-${Date.now()}-${i}`,
-        title: getCellValue(row, headers, ['title', 'test case', 'name', 'test_case_name']) || `Test Case ${i}`,
-        description: getCellValue(row, headers, ['description', 'desc', 'summary']) || '',
-        preconditions: getCellValue(row, headers, ['preconditions', 'pre-conditions', 'prerequisites']) || '',
-        steps: getCellValue(row, headers, ['steps', 'test steps', 'procedure', 'actions']) || '',
-        expected_results: getCellValue(row, headers, ['expected', 'expected result', 'expected_result', 'result']) || '',
-        priority: parsePriority(getCellValue(row, headers, ['priority', 'pri'])) || 2,
-        status: getCellValue(row, headers, ['status', 'state']) || 'Draft',
-        folder: 'Test Cases'
+        title: getCellValue(row, headers, ['title', 'test case', 'name', 'test_case_name', 'Title']) || `Test Case ${i}`,
+        description: getCellValue(row, headers, ['description', 'desc', 'summary', 'Description']) || 'N/A',
+        preconditions: getCellValue(row, headers, ['preconditions', 'pre-conditions', 'prerequisites', 'Preconditions']) || '',
+        steps: getCellValue(row, headers, ['steps', 'test steps', 'procedure', 'actions', 'Test Steps']) || '',
+        expected_results: getCellValue(row, headers, ['expected', 'expected result', 'expected_result', 'expected results', 'result', 'results', 'Expected Results', 'Expected Result', 'Expected_Results', 'Expected_Result', 'EXPECTED RESULTS', 'EXPECTED RESULT']) || '',
+        priority: parsePriority(getCellValue(row, headers, ['priority', 'pri', 'Priority'])) || 2,
+        status: getCellValue(row, headers, ['status', 'state', 'Status']) || 'Draft',
+        folder: 'Test Cases',
+        created_by: `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() || 'Unknown User'
       };
 
       testCases.push(testCase);
@@ -159,7 +164,7 @@ const Documents = () => {
         'success'
       );
     } else {
-      alert(`Successfully imported ${processedTestCases.length} test cases! Check the Test Cases page under "Test Cases" folder.`);
+      showSuccess(`Successfully imported ${processedTestCases.length} test cases! Check the Test Cases page under "Test Cases" folder.`);
     }
   };
 
@@ -182,15 +187,15 @@ const Documents = () => {
           window.document.body.removeChild(a);
           URL.revokeObjectURL(url);
         } else {
-          alert('File not found');
+          showError('File not found');
         }
       };
       
       request.onerror = () => {
-        alert('Download failed');
+        showError('Download failed');
       };
     } catch (error) {
-      alert('Download failed');
+      showError('Download failed');
     }
   };
 
@@ -221,7 +226,7 @@ const Documents = () => {
 
   const handleUploadDocument = async () => {
     if (!newDocument.file || !newDocument.title.trim()) {
-      alert('Please select a file and enter a title');
+      showError('Please select a file and enter a title');
       return;
     }
 
@@ -321,10 +326,10 @@ const Documents = () => {
                 <Input
                   type="file"
                   onChange={handleFileUpload}
-                  accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.png,.jpg,.jpeg,.mp4,.mov"
+                  accept=".xlsx"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Supported: PDF, Word, Excel, Images, Videos, Text files
+                  Supported: Excel files
                 </p>
               </div>
 

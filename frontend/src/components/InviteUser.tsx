@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { useGlobalSnackbar } from './SnackbarProvider';
 
 const InviteUser = () => {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('qa_engineer');
   const [loading, setLoading] = useState(false);
+  const { showSuccess } = useGlobalSnackbar();
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +25,7 @@ const InviteUser = () => {
       });
       
       setEmail('');
-      alert('Invitation sent successfully!');
+      showSuccess('Invitation sent successfully!');
     } catch (error) {
       console.error('Failed to send invitation:', error);
     } finally {

@@ -71,9 +71,17 @@ const UserProfileDropdown = ({ user, onLogout }: UserProfileDropdownProps) => {
           className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
           {/* Avatar */}
-          <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center text-white text-sm font-medium animate-float">
-            {getInitials(user.first_name, user.last_name)}
-          </div>
+          {user.profile_image ? (
+            <img
+              src={user.profile_image}
+              alt="Profile"
+              className="w-8 h-8 rounded-full object-cover animate-float"
+            />
+          ) : (
+            <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center text-white text-sm font-medium animate-float">
+              {getInitials(user.first_name, user.last_name)}
+            </div>
+          )}
           
           {/* User Info */}
           <div className="hidden md:block text-left">
@@ -95,9 +103,17 @@ const UserProfileDropdown = ({ user, onLogout }: UserProfileDropdownProps) => {
           {/* Header */}
           <div className="px-4 py-3 bg-gradient-primary border-b border-white/20">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-secondary rounded-full flex items-center justify-center text-white font-medium animate-bounce-custom">
-                {getInitials(user.first_name, user.last_name)}
-              </div>
+              {user.profile_image ? (
+                <img
+                  src={user.profile_image}
+                  alt="Profile"
+                  className="w-12 h-12 rounded-full object-cover animate-bounce-custom"
+                />
+              ) : (
+                <div className="w-12 h-12 bg-gradient-secondary rounded-full flex items-center justify-center text-white font-medium animate-bounce-custom">
+                  {getInitials(user.first_name, user.last_name)}
+                </div>
+              )}
               <div>
                 <div className="font-medium text-gray-900 dark:text-white">
                   {user.first_name} {user.last_name}
