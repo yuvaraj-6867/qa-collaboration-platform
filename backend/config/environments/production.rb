@@ -78,4 +78,5 @@ Rails.application.configure do
   # Allow all hosts for deployment
   config.hosts.clear
   config.hosts << "qa-collaboration-platform.onrender.com"
+  config.hosts << /.*\.onrender\.com/
 end

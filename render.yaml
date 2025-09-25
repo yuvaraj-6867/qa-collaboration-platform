@@ -1,9 +1,10 @@
 services:
   - type: web
-    name: qa-platform-backend
+    name: qa-collaboration-platform
     env: ruby
-    buildCommand: bundle install && cd backend && rails db:migrate
-    startCommand: cd backend && bundle exec rails server -p $PORT -e production
+    rootDir: backend
+    buildCommand: bundle install && rails db:migrate
+    startCommand: bundle exec rails server -p $PORT -e production
     envVars:
       - key: RAILS_ENV
         value: production
@@ -17,8 +18,9 @@ services:
   - type: web
     name: qa-platform-frontend
     env: static
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
     routes:
       - type: rewrite
         source: /*
